@@ -3,97 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NEON DESTINY — Hunter Registration</title>
+<title>THE ETERNAL GATE — Hunter Management System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;400;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --neon-blue:    #00ccff;
-  --neon-red:     #ff0044;
-  --neon-purple:  #aa44ff;
-  --dark-base:    #010101;
-  --dark-panel:   #0a0f18;
-  --text-primary: #eef5ff;
-  --text-dim:     #4c6a7c;
-  --font-display: 'Saira Condensed', sans-serif;
-  --font-mono:    'Share Tech Mono', monospace;
-  --font-thai:    'Noto Sans Thai', sans-serif;
-}
-
-*, *::before, *::after {
-  box-sizing: border-box; margin: 0; padding: 0;
-  -webkit-text-size-adjust: 100%;
-}
-
-html { overscroll-behavior: none; height: 100%; }
-
-body {
-  width: 100%; height: 100%;
-  background: var(--dark-base);
-  color: var(--text-primary);
-  font-family: var(--font-display), var(--font-thai), sans-serif;
-  overflow: hidden;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ========== DYNAMIC BACKGROUND ========== */
+:root {
+  --neon-blue: #00ccff;
+  --neon-red: #ff0044;
+  --neon-gold: #ffcc44;
+  --neon-purple: #aa44ff;
+  --dark-bg: #010105;
+  --panel-bg: rgba(5, 12, 25, 0.92);
+  --text-main: #eef5ff;
+  --text-dim: #6a8aaa;
+  --border-glow: rgba(0, 204, 255, 0.25);
+  --font-title: 'Saira Condensed', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-th: 'Noto Sans Thai', sans-serif;
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--text-main);
+  font-family: var(--font-title), var(--font-th), sans-serif;
+  overflow-x: hidden;
+}
+
+/* animated background */
 .bg-layer {
-  position: fixed; inset: 0; z-index: 0;
-  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,80,120,0.4) 0%, transparent 70%),
-              radial-gradient(ellipse 40% 40% at 80% 90%, rgba(170,68,255,0.1) 0%, transparent 60%),
-              var(--dark-base);
+  position: fixed; inset: 0; z-index: -2;
+  background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(0,80,130,0.3) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 40% at 90% 80%, rgba(170,0,255,0.1) 0%, transparent 70%),
+              #010105;
 }
-
-/* moving scanlines */
 .scanlines {
-  position: fixed; inset: 0; z-index: 1; pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent, transparent 2px,
-    rgba(0,204,255,0.02) 2px,
-    rgba(0,204,255,0.02) 4px
-  );
-  animation: scanMove 12s linear infinite;
-  will-change: background-position;
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,204,255,0.02) 2px, rgba(0,204,255,0.02) 4px);
+  animation: scanMove 10s linear infinite;
 }
-@keyframes scanMove {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 200px; }
-}
-
-/* glitch overlay (random) */
-.glitch-overlay {
-  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+@keyframes scanMove { 0% { background-position: 0 0; } 100% { background-position: 0 200px; } }
+.glitch {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: transparent;
-  mix-blend-mode: overlay;
-  opacity: 0;
-  animation: glitchFlash 8s infinite steps(1);
+  animation: glitchFlash 12s infinite steps(1);
 }
 @keyframes glitchFlash {
-  0%, 100% { opacity: 0; background: transparent; }
-  2% { opacity: 0.12; background: rgba(255,0,68,0.03); }
-  4% { opacity: 0.05; background: rgba(0,204,255,0.02); }
-  90% { opacity: 0; }
+  0%,100%{ background: transparent; }
+  1%{ background: rgba(255,0,68,0.02); }
+  3%{ background: rgba(0,204,255,0.01); }
+  95%{ background: transparent; }
 }
-
-/* corner neon */
-.corner {
-  position: fixed; z-index: 3; pointer-events: none;
-  width: 50px; height: 50px;
-  border-color: rgba(0,204,255,0.25);
-  border-style: solid;
-  transition: border-color 0.3s;
-}
-.corner-tl { top: 18px; left: 18px; border-width: 2px 0 0 2px; }
-.corner-tr { top: 18px; right: 18px; border-width: 2px 2px 0 0; }
-.corner-bl { bottom: 18px; left: 18px; border-width: 0 0 2px 2px; }
-.corner-br { bottom: 18px; right: 18px; border-width: 0 2px 2px 0; }
-.corner:hover { border-color: rgba(0,204,255,0.7); }
-
-/* particles dynamic */
 .particles {
-  position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  overflow: hidden;
 }
 .particle {
   position: absolute;
@@ -101,371 +70,277 @@ body {
   background: var(--neon-blue);
   border-radius: 50%;
   opacity: 0;
-  animation: floatUp var(--dur,8s) var(--delay,0s) ease-in infinite;
-  box-shadow: 0 0 4px var(--neon-blue);
-  will-change: transform, opacity;
+  animation: floatUp var(--dur, 10s) var(--delay, 0s) ease-in infinite;
+  box-shadow: 0 0 3px var(--neon-blue);
 }
 @keyframes floatUp {
   0% { transform: translateY(100vh) translateX(0); opacity: 0; }
-  15% { opacity: 0.6; }
+  15% { opacity: 0.5; }
   85% { opacity: 0.2; }
-  100% { transform: translateY(-10vh) translateX(var(--drift,20px)); opacity: 0; }
+  100% { transform: translateY(-10vh) translateX(var(--drift, 30px)); opacity: 0; }
 }
+/* corners */
+.corner {
+  position: fixed; z-index: 5; width: 48px; height: 48px;
+  border-color: rgba(0,204,255,0.4); border-style: solid; pointer-events: none;
+}
+.c-tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+.c-tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+.c-bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+.c-br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
 
-/* ========== MAIN LAYOUT ========== */
-.page {
+/* main container */
+.container {
   position: relative; z-index: 10;
-  min-height: 100vh; min-height: 100dvh;
-  display: flex; align-items: center; justify-content: center;
-  padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px);
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  max-width: 1400px; margin: 0 auto;
+  padding: 40px 24px 80px;
 }
 
-/* SYSTEM PANEL — glass + neon border */
-.system-panel {
-  width: 100%; max-width: 500px;
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
-  background: rgba(5,12,22,0.95);
-  backdrop-filter: blur(2px);
-  border: 1px solid rgba(0,204,255,0.2);
-  box-shadow: 0 0 30px rgba(0,204,255,0.08), inset 0 1px 0 rgba(0,204,255,0.08);
-  animation: panelAppear 0.6s cubic-bezier(0.2,0.9,0.3,1.1) both;
-  border-radius: 0;
+/* header */
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 20px;
+  margin-bottom: 50px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-glow);
 }
-@keyframes panelAppear {
-  from { opacity: 0; transform: translateY(25px) scale(0.96); filter: blur(2px); }
-  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-}
-
-.panel-header {
-  padding: 0 22px; height: 48px;
-  display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 1px solid rgba(0,204,255,0.12);
-  background: rgba(0,204,255,0.02);
-  position: sticky; top: 0; z-index: 5;
-}
-.panel-header-title {
-  font-family: var(--font-mono);
-  font-size: 10px; letter-spacing: 0.22em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-}
-.panel-header-dots { display: flex; gap: 8px; }
-.dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  transition: all 0.2s;
-}
-.dot-red  { background: #ff3366; box-shadow: 0 0 5px #ff3366; animation: pulseRed 2s infinite; }
-.dot-gold { background: #ffcc44; box-shadow: 0 0 5px #ffcc44; }
-.dot-blue { background: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue); animation: pulseBlue 1.8s infinite; }
-@keyframes pulseRed { 0%,100%{opacity:0.7} 50%{opacity:0.2} }
-@keyframes pulseBlue { 0%,100%{opacity:0.9} 50%{opacity:0.3} }
-
-.panel-body { padding: 32px 28px 38px; }
-
-/* system alert */
-.system-alert {
-  font-family: var(--font-mono); font-size: 9px;
-  color: var(--neon-blue); letter-spacing: 0.2em;
-  text-transform: uppercase; margin-bottom: 12px;
-  opacity: 0.7;
-  animation: pulseText 3s infinite;
-}
-@keyframes pulseText { 0%,100%{opacity:0.6} 50%{opacity:1} }
-
-.game-title {
-  font-family: var(--font-display); font-weight: 900;
-  font-size: clamp(32px, 8vw, 58px);
-  letter-spacing: 0.05em; line-height: 1.05;
-  background: linear-gradient(135deg, #fff, var(--neon-blue), #aa88ff);
-  -webkit-background-clip: text;
-  background-clip: text;
+.logo h1 {
+  font-family: var(--font-title); font-weight: 900;
+  font-size: 2.6rem; letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #fff, var(--neon-blue), var(--neon-purple));
+  -webkit-background-clip: text; background-clip: text;
   color: transparent;
-  text-shadow: 0 0 25px rgba(0,204,255,0.4);
-  margin-bottom: 6px;
+  text-shadow: 0 0 20px rgba(0,204,255,0.3);
 }
-
-.game-subtitle {
-  font-family: var(--font-display); font-weight: 300;
-  font-size: 11px; letter-spacing: 0.3em;
-  color: var(--text-dim); text-transform: uppercase;
-  margin-bottom: 32px;
+.logo p {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  letter-spacing: 0.2em; color: var(--text-dim);
+  margin-top: 5px;
 }
+.th-time {
+  font-family: var(--font-mono); font-size: 1rem;
+  background: rgba(0,204,255,0.08); padding: 8px 16px;
+  border: 1px solid rgba(0,204,255,0.2);
+  letter-spacing: 0.1em;
+}
+.th-time span { color: var(--neon-blue); font-weight: bold; }
 
-/* TABS */
-.tabs {
-  display: grid; grid-template-columns: 1fr 1fr;
+/* story section */
+.story-section {
+  background: rgba(0, 20, 40, 0.3);
+  border-left: 3px solid var(--neon-blue);
+  padding: 28px 32px;
+  margin: 40px 0;
+}
+.story-section h2 {
+  font-family: var(--font-mono); font-size: 1.2rem;
+  letter-spacing: 0.2em; color: var(--neon-blue);
+  margin-bottom: 16px;
+}
+.story-section p {
+  font-family: var(--font-th); font-size: 1rem;
+  line-height: 1.7; color: #cce4f0;
+  margin-bottom: 12px;
+}
+/* grid sections */
+.section-title {
+  font-family: var(--font-title); font-size: 2rem;
+  font-weight: 700; letter-spacing: 0.05em;
+  margin: 60px 0 30px 0;
+  border-left: 4px solid var(--neon-blue);
+  padding-left: 20px;
+}
+.section-sub {
+  font-family: var(--font-mono); font-size: 0.8rem;
+  color: var(--text-dim); margin-top: -20px; margin-bottom: 30px;
+  padding-left: 24px;
+}
+.feature-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px; margin: 30px 0;
+}
+.feature-card {
+  background: rgba(0, 20, 40, 0.5);
+  backdrop-filter: blur(4px);
   border: 1px solid rgba(0,204,255,0.15);
-  margin-bottom: 28px;
-  overflow: hidden;
-}
-.tab-btn {
-  padding: 14px; background: transparent; border: none;
-  cursor: pointer;
-  font-family: var(--font-display); font-weight: 700;
-  font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-dim);
-  transition: all 0.25s;
-  position: relative;
-}
-.tab-btn:first-child { border-right: 1px solid rgba(0,204,255,0.15); }
-.tab-btn.active {
-  color: var(--neon-blue);
-  background: rgba(0,204,255,0.05);
-  text-shadow: 0 0 6px var(--neon-blue);
-}
-.tab-btn.active::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-  height: 2px; background: var(--neon-blue);
-  box-shadow: 0 0 8px var(--neon-blue);
-}
-.tab-btn:active { background: rgba(0,204,255,0.1); }
-
-/* FORMS */
-.form-section { display: none; }
-.form-section.active { display: block; animation: fadeSlide 0.25s ease; }
-@keyframes fadeSlide {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.field { margin-bottom: 18px; }
-.field-label {
-  display: block; font-family: var(--font-mono);
-  font-size: 9px; letter-spacing: 0.2em;
-  color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;
-}
-
-.field-input {
-  width: 100%; padding: 14px 16px;
-  background: rgba(0,204,255,0.02);
-  border: 1px solid rgba(0,204,255,0.18);
-  color: var(--text-primary);
-  font-family: var(--font-mono); font-size: 16px;
-  outline: none; transition: all 0.2s;
-  -webkit-appearance: none; border-radius: 0;
-}
-.field-input:focus {
-  border-color: rgba(0,204,255,0.6);
-  background: rgba(0,204,255,0.05);
-  box-shadow: 0 0 12px rgba(0,204,255,0.1);
-}
-.field-input::placeholder { color: rgba(76,106,124,0.6); }
-
-/* BUTTON */
-.btn-primary {
-  width: 100%; padding: 16px; margin-top: 12px;
-  background: linear-gradient(135deg, transparent, rgba(0,204,255,0.05));
-  border: 1px solid rgba(0,204,255,0.5);
-  color: var(--neon-blue);
-  font-family: var(--font-display); font-weight: 700;
-  font-size: 14px; letter-spacing: 0.22em; text-transform: uppercase;
-  cursor: pointer; position: relative; overflow: hidden;
+  padding: 28px 22px;
   transition: all 0.3s;
 }
-.btn-primary::before {
-  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0,204,255,0.2), transparent);
-  transition: left 0.5s;
-}
-.btn-primary:hover::before { left: 100%; }
-.btn-primary:hover, .btn-primary:active {
-  background: rgba(0,204,255,0.12);
+.feature-card:hover {
   border-color: var(--neon-blue);
-  box-shadow: 0 0 20px rgba(0,204,255,0.3);
-  color: #fff;
+  box-shadow: 0 0 20px rgba(0,204,255,0.15);
+  transform: translateY(-5px);
 }
-.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.feature-card h3 {
+  font-size: 1.5rem; letter-spacing: 0.08em;
+  color: var(--neon-blue); margin-bottom: 12px;
+}
+.feature-card p {
+  font-family: var(--font-th); font-size: 0.9rem;
+  color: var(--text-dim); line-height: 1.5;
+}
+/* special class badge */
+.special-badge {
+  display: inline-block;
+  font-family: var(--font-mono); font-size: 0.65rem;
+  padding: 2px 8px; margin-left: 10px;
+  border: 1px solid;
+  vertical-align: middle;
+}
+.merchant-badge { border-color: var(--neon-gold); color: var(--neon-gold); }
+.shadow-badge { border-color: var(--neon-red); color: var(--neon-red); }
 
-/* STATUS MESSAGES */
-.status-msg {
-  margin-top: 16px; padding: 12px 16px;
-  font-family: var(--font-mono); font-size: 11px;
-  letter-spacing: 0.06em; display: none;
-  animation: fadeSlide 0.2s;
-  border-left: 3px solid;
+/* country list - 50 nations */
+.country-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin: 30px 0;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px 5px;
+  border: 1px solid rgba(0,204,255,0.1);
+  background: rgba(0,0,0,0.3);
 }
-.status-msg.error   { display: block; border-left-color: var(--neon-red); background: rgba(255,0,68,0.05); color: #ff88aa; }
-.status-msg.success { display: block; border-left-color: var(--neon-blue); background: rgba(0,204,255,0.05); color: var(--neon-blue); }
-.status-msg.loading { display: block; border-left-color: var(--text-dim); background: rgba(0,204,255,0.02); color: var(--text-dim); }
+.country-item {
+  font-family: var(--font-mono); font-size: 0.75rem;
+  padding: 6px 10px;
+  border-bottom: 1px dashed rgba(0,204,255,0.1);
+  color: var(--text-dim);
+  transition: 0.2s;
+}
+.country-item:hover { color: var(--neon-blue); padding-left: 14px; }
+.country-code { color: var(--neon-blue); font-weight: bold; margin-right: 6px; }
 
-.system-line {
-  margin-top: 26px; font-family: var(--font-mono);
-  font-size: 9px; letter-spacing: 0.12em; color: var(--text-dim);
-  display: flex; align-items: center; gap: 10px;
+/* CTA Buttons */
+.cta-section {
+  display: flex; justify-content: center; gap: 30px;
+  margin: 60px 0 40px;
+  flex-wrap: wrap;
 }
-.system-line::before {
-  content: ''; display: inline-block; width: 28px; height: 1px;
-  background: var(--text-dim); flex-shrink: 0;
+.btn {
+  padding: 14px 36px;
+  font-family: var(--font-title); font-weight: 700;
+  font-size: 1rem; letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-decoration: none;
+  display: inline-block;
 }
-
-/* SPINNER */
-.spinner {
-  display: inline-block; width: 12px; height: 12px;
-  border: 1px solid rgba(0,204,255,0.3);
-  border-top-color: var(--neon-blue);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  vertical-align: middle; margin-right: 8px;
+.btn-login {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+  box-shadow: 0 0 8px rgba(0,204,255,0.3);
 }
-@keyframes spin { to{transform:rotate(360deg)} }
-
-/* AWAKENING OVERLAY (DRAMATIC) */
-.awakening-overlay {
-  position: fixed; inset: 0; z-index: 1000;
-  background: radial-gradient(ellipse at center, #010105 0%, #000000 100%);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 20px;
-  opacity: 0; pointer-events: none; transition: opacity 0.4s;
+.btn-login:hover {
+  background: var(--neon-blue);
+  color: #010105;
+  box-shadow: 0 0 25px var(--neon-blue);
 }
-.awakening-overlay.show { opacity: 1; pointer-events: all; }
-.awakening-text {
-  font-family: var(--font-display); font-weight: 900;
-  font-size: clamp(16px, 5vw, 28px); letter-spacing: 0.22em;
-  color: var(--neon-blue); text-transform: uppercase;
-  text-shadow: 0 0 20px var(--neon-blue);
-  animation: flicker 2s infinite steps(2);
+.btn-register {
+  border-color: var(--neon-gold);
+  color: var(--neon-gold);
+  box-shadow: 0 0 8px rgba(255,204,68,0.3);
 }
-@keyframes flicker { 0%,100%{opacity:1} 92%{opacity:0.4} 95%{opacity:0.8} 98%{opacity:0.2} }
-.awakening-sub {
-  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.3em;
+.btn-register:hover {
+  background: var(--neon-gold);
+  color: #010105;
+  box-shadow: 0 0 25px var(--neon-gold);
+}
+.footer {
+  text-align: center; margin-top: 70px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(0,204,255,0.1);
+  font-family: var(--font-mono); font-size: 0.7rem;
   color: var(--text-dim);
 }
-.awakening-bar-wrap {
-  width: min(280px, 70vw); height: 2px;
-  background: rgba(0,204,255,0.15); overflow: hidden;
-  box-shadow: 0 0 4px rgba(0,204,255,0.3);
-}
-.awakening-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--neon-blue), #ffffff);
-  width: 0%;
-  box-shadow: 0 0 6px var(--neon-blue);
-  will-change: width;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .panel-body { padding: 24px 18px 30px; }
-  .game-title { font-size: 32px; }
-  .corner { width: 32px; height: 32px; }
-}
-@media (max-height: 550px) and (orientation: landscape) {
-  .page { align-items: flex-start; padding-top: 8px; }
-  .panel-body { padding: 12px 20px 16px; }
-  .game-title { font-size: 24px; margin-bottom: 2px; }
-  .game-subtitle { margin-bottom: 12px; }
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: rgba(0,204,255,0.05); }
+::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 2px; }
+@media (max-width: 700px) {
+  .container { padding: 20px 16px 50px; }
+  .logo h1 { font-size: 1.8rem; }
+  .section-title { font-size: 1.5rem; }
+  .story-section { padding: 18px 20px; }
+  .btn { padding: 10px 20px; font-size: 0.8rem; }
 }
 </style>
 </head>
 <body>
-
 <div class="bg-layer"></div>
 <div class="scanlines"></div>
-<div class="glitch-overlay"></div>
+<div class="glitch"></div>
 <div class="particles" id="particles"></div>
-<div class="corner corner-tl"></div>
-<div class="corner corner-tr"></div>
-<div class="corner corner-bl"></div>
-<div class="corner corner-br"></div>
+<div class="corner c-tl"></div>
+<div class="corner c-tr"></div>
+<div class="corner c-bl"></div>
+<div class="corner c-br"></div>
 
-<div class="awakening-overlay" id="awakeningOverlay">
-  <div class="awakening-text">[ AWAKENING SEQUENCE ]</div>
-  <div class="awakening-bar-wrap"><div class="awakening-bar" id="awakeningBar"></div></div>
-  <div class="awakening-sub">กำลังเชื่อมต่อกับระบบฮันเตอร์...</div>
-</div>
-
-<div class="page">
-  <div class="system-panel">
-
-    <div class="panel-header">
-      <span class="panel-header-title">SYSTEM // HUNTER AUTHENTICATION</span>
-      <div class="panel-header-dots">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-gold"></div>
-        <div class="dot dot-blue"></div>
-      </div>
+<div class="container">
+  <div class="header">
+    <div class="logo">
+      <h1>THE ETERNAL GATE</h1>
+      <p>// HUNTER MANAGEMENT SYSTEM //</p>
     </div>
-
-    <div class="panel-body">
-      <div class="system-alert">[ SYSTEM NOTICE ] — New Gate detected</div>
-      <div class="game-title">NEON<br>DESTINY</div>
-      <div class="game-subtitle">Solo Leveling · Hunter System</div>
-
-      <div class="tabs">
-        <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">เข้าสู่ระบบ</button>
-        <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">สมัครสมาชิก</button>
-      </div>
-
-      <!-- LOGIN -->
-      <div class="form-section active" id="formLogin">
-        <div class="field">
-          <label class="field-label" for="loginEmail">// Hunter Email</label>
-          <input class="field-input" type="email" id="loginEmail"
-                 placeholder="hunter@example.com" autocomplete="email" inputmode="email">
-        </div>
-        <div class="field">
-          <label class="field-label" for="loginPassword">// Access Code</label>
-          <input class="field-input" type="password" id="loginPassword"
-                 placeholder="••••••••" autocomplete="current-password">
-        </div>
-        <button class="btn-primary" id="loginBtn" onclick="handleLogin()">
-          <span>[ ENTER SYSTEM ]</span>
-        </button>
-        <div class="status-msg" id="loginStatus"></div>
-        <div class="system-line">Secure channel · TLS 1.3</div>
-      </div>
-
-      <!-- REGISTER -->
-      <div class="form-section" id="formRegister">
-        <div class="field">
-          <label class="field-label" for="regUsername">// Hunter Codename</label>
-          <input class="field-input" type="text" id="regUsername"
-                 placeholder="ShadowMonarch" autocomplete="username"
-                 maxlength="30" oninput="validateUsername(this)">
-        </div>
-        <div class="field">
-          <label class="field-label" for="regEmail">// Contact Email</label>
-          <input class="field-input" type="email" id="regEmail"
-                 placeholder="hunter@example.com" autocomplete="email" inputmode="email">
-        </div>
-        <div class="field">
-          <label class="field-label" for="regPassword">// Set Access Code</label>
-          <input class="field-input" type="password" id="regPassword"
-                 placeholder="อย่างน้อย 8 ตัวอักษร" autocomplete="new-password" minlength="8">
-        </div>
-        <button class="btn-primary" id="registerBtn" onclick="handleRegister()">
-          <span>[ AWAKEN AS HUNTER ]</span>
-        </button>
-        <div class="status-msg" id="registerStatus"></div>
-        <div class="system-line">ข้อมูลส่วนตัวปลอดภัย 100%</div>
-      </div>
-
+    <div class="th-time">
+      <span>⏲️</span> <span id="liveClock">--:--:--</span> <span style="font-size:0.7rem;">(UTC+7)</span>
     </div>
+  </div>
+
+  <!-- Story / Lore -->
+  <div class="story-section">
+    <h2>// PROLOGUE : THE AWAKENING</h2>
+    <p>ปี 2032 — “GATE” ประตูมิติปริศนาเริ่มปรากฏขึ้นทั่วโลก สิ่งมีชีวิตจากต่างมิติหลั่งไหลเข้าสู่โลกมนุษย์ มนุษย์ธรรมดากลับมีผู้ที่ตื่นพลัง (Awakened) กลายเป็น “ฮันเตอร์” ผู้เดียวที่สามารถต่อสู้และปิดเกตได้ องค์กรฮันเตอร์นานาชาติก่อตั้ง THE ETERNAL GATE SYSTEM ขึ้นเพื่อจดทะเบียน จัดอันดับ และควบคุมสมดุลของพลัง</p>
+    <p>คุณคือหนึ่งในผู้ตื่นพลังที่เพิ่งได้รับการรับรองจากระบบ ขณะนี้มีเกตระดับต่างๆ ปรากฏใน 50 ประเทศทั่วโลก ตั้งแต่ Green Gate ระดับ E ไปจนถึง Black Gate ระดับ S ที่ต้องใช้ปาร์ตี้ระดับแนวหน้า ระบบของเราจะบันทึกทุกการต่อสู้ ทุกไอเทม และจัดอันดับฮันเตอร์แบบเรียลไทม์ ปลดล็อกอาชีพลับและสร้างตำนานของคุณเอง</p>
+  </div>
+
+  <!-- Core Systems -->
+  <div class="section-title">[ CORE SYSTEMS ]</div>
+  <div class="feature-grid">
+    <div class="feature-card"><h3>CLASS SYSTEM</h3><p>6 คลาสหลัก: Warrior, Mage, Assassin, Tank, Healer และ <strong>Merchant</strong><span class="special-badge merchant-badge">SPECIAL</span><br>อาชีพลับ: <strong>Shadow Heir</strong><span class="special-badge shadow-badge">SECRET</span> (ปลดล็อคเมื่อถึงเงื่อนไขพิเศษ)</p></div>
+    <div class="feature-card"><h3>GLOBAL GATE</h3><p>50 ประเทศ แต่ละแห่งมี Rank Tier (S/A/B/C) ส่งผลต่อความยากของ Gate และอัตราภาษีในตลาดกลาง ระบบจังหวัด/พื้นที่ (Current Area) แสดงบน Leaderboard</p></div>
+    <div class="feature-card"><h3>AI WEBTOON ART</h3><p>สร้างภาพประกอบตัวละครสไตล์ Webtoon ด้วย Stable Diffusion — ทุกการกระทำสำคัญ (Battle, Level up, Party) จะได้ภาพใหม่ที่ไม่ซ้ำใคร พร้อมระบบแคชเพื่อความรวดเร็ว</p></div>
+    <div class="feature-card"><h3>PARTY & MARKET</h3><p>จับกลุ่มลง Gate สูงสุด 10 คน, กระดาน commission หาสมาชิก, ตลาดกลางพร้อมภาษี (Merchant ยกเว้นภาษี), PvP แบบท้าดวล</p></div>
+  </div>
+
+  <!-- 50 Countries Section -->
+  <div class="section-title">[ 50 NATIONS · GATE TIER ]</div>
+  <div class="section-sub">ประเทศที่เปิดใช้งานระบบฮันเตอร์ แบ่งตาม Rank Tier (S/A/B/C)</div>
+  <div class="country-grid" id="countryList">
+    <!-- dynamic javascript insert 50 countries without emoji -->
+  </div>
+
+  <!-- Area / Province Feature -->
+  <div class="feature-card" style="margin: 30px 0;">
+    <h3>PROVINCE · AREA TRACKING</h3>
+    <p>ฮันเตอร์สามารถระบุพื้นที่สังกัด (จังหวัด/เมือง) ได้เมื่อสร้างตัวละคร ข้อมูลนี้จะแสดงใน Leaderboard พร้อมกับประเทศ เพื่อสร้างชุมชนและการแข่งขันในระดับท้องถิ่น รองรับภาษาไทยและอังกฤษ</p>
+  </div>
+
+  <!-- Call to action -->
+  <div class="cta-section">
+    <a href="login.html" class="btn btn-login">⌘ เข้าสู่ระบบ</a>
+    <a href="register.html" class="btn btn-register">✦ สมัครสมาชิก</a>
+  </div>
+
+  <div class="footer">
+    <span>© 2025 THE ETERNAL GATE — Hunter Association International</span><br>
+    <span style="font-size:0.6rem">[ ระบบเปิดให้บริการสำหรับเหล่าฮันเตอร์ทุกคน | ข้อมูลทั้งหมดปลอดภัย ]</span>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Supabase config
-const SUPABASE_URL  = 'https://ejurtaivfrozzhassvgf.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXJ0YWl2ZnJvenpoYXNzdmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTM5MTYsImV4cCI6MjA5MDMyOTkxNn0.m9LaUaK3eRwY_TxdI0aCrnEASsqE4WdIioALfYVjVI0';
-
-// ตรวจสอบว่าถ้ามีตัวแปร supabase ใน window แล้ว ไม่ต้องสร้างซ้ำ
-if (!window._supabaseClient) {
-  window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-}
-const supabase = window._supabaseClient;
-
-// Particles animation (เพิ่มจำนวนขึ้นเล็กน้อย)
-(function initParticles() {
+// Particles
+(function() {
   const container = document.getElementById('particles');
-  const count = Math.min(16, window.innerWidth < 600 ? 10 : 16);
+  const count = Math.min(24, window.innerWidth < 700 ? 15 : 24);
   for (let i = 0; i < count; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    const dur = 6 + Math.random() * 8;
+    const dur = 5 + Math.random() * 9;
     const delay = -Math.random() * 12;
     const drift = (Math.random() - 0.5) * 70;
     p.style.cssText = `left:${Math.random() * 100}%;--dur:${dur}s;--delay:${delay}s;--drift:${drift}px`;
@@ -473,180 +348,48 @@ const supabase = window._supabaseClient;
   }
 })();
 
-// ========== GLOBAL FUNCTIONS ==========
-function switchTab(tab) {
-  const isLogin = (tab === 'login');
-  document.getElementById('tabLogin').classList.toggle('active', isLogin);
-  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
-  document.getElementById('formLogin').classList.toggle('active', isLogin);
-  document.getElementById('formRegister').classList.toggle('active', !isLogin);
-  clearStatus();
+// Thailand time (UTC+7)
+function updateThaiTime() {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const thaiTime = new Date(utc + (7 * 3600000));
+  const hours = thaiTime.getHours().toString().padStart(2,'0');
+  const minutes = thaiTime.getMinutes().toString().padStart(2,'0');
+  const seconds = thaiTime.getSeconds().toString().padStart(2,'0');
+  document.getElementById('liveClock').innerText = `${hours}:${minutes}:${seconds}`;
 }
+updateThaiTime();
+setInterval(updateThaiTime, 1000);
 
-function clearStatus() {
-  ['loginStatus','registerStatus'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.className = 'status-msg'; el.innerHTML = ''; }
-  });
+// 50 Countries data (without emoji, plain text)
+const countriesData = [
+  {code:"TH", name:"Thailand", tier:"A"}, {code:"JP", name:"Japan", tier:"S"}, {code:"KR", name:"South Korea", tier:"S"},
+  {code:"CN", name:"China", tier:"S"}, {code:"IN", name:"India", tier:"A"}, {code:"ID", name:"Indonesia", tier:"B"},
+  {code:"PH", name:"Philippines", tier:"B"}, {code:"VN", name:"Vietnam", tier:"B"}, {code:"MY", name:"Malaysia", tier:"B"},
+  {code:"SG", name:"Singapore", tier:"A"}, {code:"AU", name:"Australia", tier:"A"}, {code:"NZ", name:"New Zealand", tier:"B"},
+  {code:"PK", name:"Pakistan", tier:"C"}, {code:"BD", name:"Bangladesh", tier:"C"}, {code:"LK", name:"Sri Lanka", tier:"C"},
+  {code:"SA", name:"Saudi Arabia", tier:"A"}, {code:"AE", name:"UAE", tier:"A"}, {code:"TR", name:"Turkey", tier:"A"},
+  {code:"IL", name:"Israel", tier:"A"}, {code:"IR", name:"Iran", tier:"B"}, {code:"GB", name:"United Kingdom", tier:"S"},
+  {code:"FR", name:"France", tier:"S"}, {code:"DE", name:"Germany", tier:"S"}, {code:"IT", name:"Italy", tier:"A"},
+  {code:"ES", name:"Spain", tier:"A"}, {code:"RU", name:"Russia", tier:"S"}, {code:"NL", name:"Netherlands", tier:"A"},
+  {code:"SE", name:"Sweden", tier:"A"}, {code:"NO", name:"Norway", tier:"A"}, {code:"PL", name:"Poland", tier:"B"},
+  {code:"CH", name:"Switzerland", tier:"A"}, {code:"PT", name:"Portugal", tier:"B"}, {code:"UA", name:"Ukraine", tier:"B"},
+  {code:"GR", name:"Greece", tier:"B"}, {code:"US", name:"United States", tier:"S"}, {code:"CA", name:"Canada", tier:"S"},
+  {code:"MX", name:"Mexico", tier:"A"}, {code:"BR", name:"Brazil", tier:"A"}, {code:"AR", name:"Argentina", tier:"B"},
+  {code:"CO", name:"Colombia", tier:"B"}, {code:"CL", name:"Chile", tier:"B"}, {code:"VE", name:"Venezuela", tier:"C"},
+  {code:"PE", name:"Peru", tier:"C"}, {code:"NG", name:"Nigeria", tier:"B"}, {code:"EG", name:"Egypt", tier:"B"},
+  {code:"ZA", name:"South Africa", tier:"A"}, {code:"KE", name:"Kenya", tier:"C"}, {code:"ET", name:"Ethiopia", tier:"C"},
+  {code:"MA", name:"Morocco", tier:"C"}, {code:"GH", name:"Ghana", tier:"C"}
+];
+function renderCountries() {
+  const container = document.getElementById('countryList');
+  container.innerHTML = countriesData.map(c => `
+    <div class="country-item">
+      <span class="country-code">[${c.tier}]</span> ${c.name} (${c.code})
+    </div>
+  `).join('');
 }
-
-function validateUsername(input) {
-  input.value = input.value.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '');
-}
-
-function setStatus(id, type, msg) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.className = `status-msg ${type}`;
-  if (type === 'loading') {
-    el.innerHTML = `<span class="spinner"></span>${msg}`;
-  } else {
-    const prefix = type === 'error' ? '[ ERROR ] ' : '[ OK ] ';
-    el.innerHTML = prefix + msg;
-  }
-}
-
-function setLoading(btnId, isLoading) {
-  const btn = document.getElementById(btnId);
-  if (btn) btn.disabled = isLoading;
-}
-
-// ========== LOGIN ==========
-async function handleLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPassword').value;
-  if (!email || !pass) {
-    setStatus('loginStatus', 'error', 'กรุณากรอกอีเมลและรหัสผ่าน');
-    return;
-  }
-  setLoading('loginBtn', true);
-  setStatus('loginStatus', 'loading', 'กำลังตรวจสอบ Hunter ID...');
-
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-  if (error) {
-    setStatus('loginStatus', 'error', translateError(error.message));
-    setLoading('loginBtn', false);
-    return;
-  }
-
-  // ตรวจสอบตัวละคร
-  const { data: char } = await supabase
-    .from('characters')
-    .select('id')
-    .eq('user_id', data.user.id)
-    .maybeSingle();
-
-  triggerAwakening(() => {
-    window.location.href = char ? 'hub.html' : 'create-character.html';
-  });
-}
-
-// ========== REGISTER ==========
-async function handleRegister() {
-  const username = document.getElementById('regUsername').value.trim();
-  const email    = document.getElementById('regEmail').value.trim();
-  const pass     = document.getElementById('regPassword').value;
-
-  if (!username || !email || !pass) {
-    setStatus('registerStatus', 'error', 'กรุณากรอกข้อมูลให้ครบ');
-    return;
-  }
-  if (username.length < 3) {
-    setStatus('registerStatus', 'error', 'Codename ต้องมีอย่างน้อย 3 ตัวอักษร');
-    return;
-  }
-  if (pass.length < 8) {
-    setStatus('registerStatus', 'error', 'Access Code ต้องมีอย่างน้อย 8 ตัวอักษร');
-    return;
-  }
-
-  setLoading('registerBtn', true);
-  setStatus('registerStatus', 'loading', 'กำลังลงทะเบียนในระบบ Hunter Association...');
-
-  // ตรวจสอบ username ซ้ำ
-  const { data: existing } = await supabase
-    .from('profiles')
-    .select('username')
-    .eq('username', username)
-    .maybeSingle();
-  if (existing) {
-    setStatus('registerStatus', 'error', 'Codename "' + username + '" ถูกใช้แล้ว');
-    setLoading('registerBtn', false);
-    return;
-  }
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password: pass,
-    options: { data: { username, display_name: username } }
-  });
-
-  if (error) {
-    setStatus('registerStatus', 'error', translateError(error.message));
-    setLoading('registerBtn', false);
-    return;
-  }
-
-  // รอ trigger profile สร้างแล้วอัปเดต username
-  await new Promise(r => setTimeout(r, 800));
-  await supabase.from('profiles').update({ username }).eq('id', data.user.id);
-
-  setStatus('registerStatus', 'success', 'ยืนยันอีเมลของคุณเพื่อเริ่ม Awakening!');
-  setLoading('registerBtn', false);
-
-  if (data.session) {
-    triggerAwakening(() => { window.location.href = 'create-character.html'; });
-  }
-}
-
-// ========== AWAKENING ANIMATION ==========
-function triggerAwakening(callback) {
-  const overlay = document.getElementById('awakeningOverlay');
-  const bar = document.getElementById('awakeningBar');
-  overlay.classList.add('show');
-  bar.style.animation = 'none';
-  bar.offsetHeight; // force reflow
-  bar.style.animation = 'bar-fill 1.8s cubic-bezier(0.2,0.9,0.4,1.1) forwards';
-  setTimeout(() => {
-    callback();
-  }, 2000);
-}
-
-function translateError(msg) {
-  if (msg.includes('Invalid login')) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-  if (msg.includes('Email not confirmed')) return 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
-  if (msg.includes('already registered')) return 'อีเมลนี้ถูกลงทะเบียนแล้ว';
-  if (msg.includes('rate limit')) return 'ลองใหม่อีกครั้งใน 1 นาที';
-  if (msg.includes('Network')) return 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
-  return msg;
-}
-
-// ========== SESSION CHECK (Redirect if already logged in) ==========
-(async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return;
-  const { data: char } = await supabase
-    .from('characters')
-    .select('id')
-    .eq('user_id', session.user.id)
-    .maybeSingle();
-  // ไปที่ hub หรือ create-character ตามสถานะ
-  window.location.href = char ? 'hub.html' : 'create-character.html';
-})();
-
-// ========== KEYBOARD SHORTCUT ==========
-document.addEventListener('keydown', (e) => {
-  if (e.key !== 'Enter') return;
-  const activeForm = document.getElementById('formLogin').classList.contains('active') ? 'login' : 'register';
-  if (activeForm === 'login') handleLogin();
-  else handleRegister();
-});
-
-// ทำให้ฟังก์ชัน global เพื่อความปลอดภัย (แต่ onclick ก็ใช้งานได้แล้ว)
-window.switchTab = switchTab;
-window.handleLogin = handleLogin;
-window.handleRegister = handleRegister;
-window.validateUsername = validateUsername;
+renderCountries();
 </script>
 </body>
 </html>
