@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>THE ETERNAL GATE — Hunter Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --neon-blue:    #0099bb;
+  --neon-red:     #cc0033;
+  --dark-base:    #020408;
+  --text-primary: #8ab8cc;
+  --text-dim:     #2e5060;
+  --font-display: 'Saira Condensed', sans-serif;
+  --font-mono:    'Share Tech Mono', monospace;
+  --font-thai:    'Noto Sans Thai', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box; margin: 0; padding: 0;
+  -webkit-text-size-adjust: 100%;
+}
+
+html { overscroll-behavior: none; height: 100%; }
+
+body {
+  width: 100%; height: 100%;
+  background: var(--dark-base);
+  color: var(--text-primary);
+  font-family: var(--font-display), var(--font-thai), sans-serif;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ─── BACKGROUND — static เท่านั้น ─── */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,60,90,0.3) 0%, transparent 70%),
+    var(--dark-base);
+}
+
+/* Scanlines — static ไม่ animate */
+.scanlines {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 3px,
+    rgba(0,153,187,0.007) 3px, rgba(0,153,187,0.007) 4px
+  );
+}
+
+/* Corners */
+.corner {
+  position: fixed; z-index: 2; pointer-events: none;
+  width: 44px; height: 44px;
+  border-color: rgba(0,153,187,0.16);
+  border-style: solid;
+}
+.corner-tl { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
+.corner-tr { top: 16px; right: 16px; border-width: 1px 1px 0 0; }
+.corner-bl { bottom: 16px; left: 16px; border-width: 0 0 1px 1px; }
+.corner-br { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
+
+/* Particles */
+.particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.particle {
+  position: absolute; width: 1px; height: 1px;
+  background: var(--neon-blue); border-radius: 50%; opacity: 0;
+  animation: float-up var(--dur,7s) var(--delay,0s) ease-in infinite;
+  will-change: transform, opacity;
+}
+@keyframes float-up {
+  0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+  15%  { opacity: 0.3; }
+  85%  { opacity: 0.08; }
+  100% { transform: translateY(-5vh) translateX(var(--drift,15px)); opacity: 0; }
+}
+
+/* ─── LAYOUT ─── */
+.page {
+  position: relative; z-index: 10;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+
+/* ─── PANEL ─── */
+.system-panel {
+  width: 100%; max-width: 460px;
+  max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: rgba(4,11,20,0.97);
+  border: 1px solid rgba(0,153,187,0.16);
+  box-shadow: 0 0 20px rgba(0,153,187,0.04), inset 0 1px 0 rgba(0,153,187,0.06);
+  animation: panel-appear 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  will-change: transform, opacity;
+}
+@keyframes panel-appear {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-header {
+  padding: 0 20px; height: 42px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(0,153,187,0.1);
+  background: rgba(0,153,187,0.02);
+  position: sticky; top: 0; z-index: 5;
+}
+.panel-header-title {
+  font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.16em;
+  color: var(--text-dim); text-transform: uppercase;
+}
+.panel-header-dots { display: flex; gap: 6px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot-red  { background: rgba(204,0,51,0.6); }
+.dot-gold { background: rgba(184,154,0,0.6); }
+.dot-blue { background: rgba(0,153,187,0.7); animation: pulse-dot 2.5s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:.7} 50%{opacity:.25} }
+
+.panel-body { padding: 28px 24px 32px; }
+
+/* ─── TITLE ─── */
+.system-alert {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--neon-blue); letter-spacing: 0.2em;
+  text-transform: uppercase; margin-bottom: 8px; opacity: 0.6;
+  animation: blink-text 3s step-end infinite;
+}
+@keyframes blink-text { 0%,100%{opacity:.6} 50%{opacity:.15} }
+
+.game-title {
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(26px, 7vw, 46px);
+  letter-spacing: 0.04em; line-height: 1.02;
+  color: #cce4ee;
+  /* glow อ่อนมาก ชั้นเดียว */
+  text-shadow: 0 0 16px rgba(0,153,187,0.2);
+  margin-bottom: 4px;
+}
+
+.game-subtitle {
+  font-family: var(--font-display); font-weight: 300;
+  font-size: 10px; letter-spacing: 0.26em;
+  color: var(--text-dim); text-transform: uppercase; margin-bottom: 28px;
+}
+
+/* ─── TABS ─── */
+.tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border: 1px solid rgba(0,153,187,0.12);
+  margin-bottom: 20px; overflow: hidden;
+}
+.tab-btn {
+  padding: 12px; background: transparent; border: none; cursor: pointer;
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-dim); transition: color 0.2s, background 0.2s;
+  position: relative; min-height: 48px;
+}
+.tab-btn:first-child { border-right: 1px solid rgba(0,153,187,0.12); }
+.tab-btn.active {
+  color: var(--neon-blue); background: rgba(0,153,187,0.05);
+}
+.tab-btn.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px; background: rgba(0,153,187,0.5);
+}
+.tab-btn:active { background: rgba(0,153,187,0.08); }
+
+/* ─── FORM ─── */
+.form-section { display: none; }
+.form-section.active { display: block; animation: fade-in 0.2s ease; }
+@keyframes fade-in { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+.field { margin-bottom: 14px; }
+.field-label {
+  display: block; font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.16em;
+  color: var(--text-dim); text-transform: uppercase; margin-bottom: 7px;
+}
+
+.field-input {
+  width: 100%; padding: 13px 15px;
+  background: rgba(0,153,187,0.025);
+  border: 1px solid rgba(0,153,187,0.13);
+  color: var(--text-primary);
+  font-family: var(--font-mono); font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none; border-radius: 0;
+}
+.field-input::placeholder { color: rgba(46,80,96,0.55); }
+.field-input:focus {
+  border-color: rgba(0,153,187,0.4);
+  background: rgba(0,153,187,0.045);
+}
+
+/* ─── BUTTON ─── */
+.btn-primary {
+  width: 100%; padding: 15px; margin-top: 8px;
+  background: transparent;
+  border: 1px solid rgba(0,153,187,0.4);
+  color: var(--neon-blue);
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: pointer; min-height: 50px;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.btn-primary:hover, .btn-primary:active {
+  background: rgba(0,153,187,0.1);
+  border-color: rgba(0,153,187,0.6); color: #b8dce8;
+}
+.btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ─── STATUS ─── */
+.status-msg {
+  margin-top: 12px; padding: 10px 13px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.04em; display: none;
+  animation: fade-in 0.2s ease; word-break: break-word;
+}
+.status-msg.error   { display:block; border:1px solid rgba(204,0,51,0.22); color:#bb4455; background:rgba(204,0,51,0.035); }
+.status-msg.success { display:block; border:1px solid rgba(0,153,187,0.2); color:var(--neon-blue); background:rgba(0,153,187,0.035); }
+.status-msg.loading { display:block; border:1px solid rgba(0,153,187,0.13); color:var(--text-dim); background:rgba(0,153,187,0.02); }
+
+.system-line {
+  margin-top: 20px; font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.1em; color: var(--text-dim);
+  display: flex; align-items: center; gap: 8px;
+}
+.system-line::before {
+  content: ''; display: inline-block;
+  width: 16px; height: 1px; background: var(--text-dim); flex-shrink: 0;
+}
+
+/* ─── SPINNER ─── */
+.spinner {
+  display: inline-block; width: 11px; height: 11px;
+  border: 1px solid rgba(0,153,187,0.2);
+  border-top-color: var(--neon-blue); border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle; margin-right: 8px; will-change: transform;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ─── AWAKENING OVERLAY ─── */
+.awakening-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--dark-base);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.awakening-overlay.show { opacity: 1; pointer-events: all; }
+.awakening-text {
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(14px, 4vw, 22px); letter-spacing: 0.18em;
+  color: var(--neon-blue); text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(0,153,187,0.25);
+}
+.awakening-sub {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.22em; color: var(--text-dim);
+  animation: blink-text 2s step-end infinite;
+}
+.awakening-bar-wrap {
+  width: min(240px, 70vw); height: 1px;
+  background: rgba(0,153,187,0.1); overflow: hidden;
+}
+.awakening-bar {
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--neon-blue));
+  width: 0%; will-change: width;
+}
+@keyframes bar-fill { to{width:100%} }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 380px) {
+  .panel-body { padding: 18px 13px 24px; }
+  .game-title { font-size: 22px; }
+  .corner { width: 30px; height: 30px; }
+}
+@media (max-width: 480px) {
+  .panel-body { padding: 22px 15px 26px; }
+  .corner { width: 36px; height: 36px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .page { align-items: flex-start; padding-top: 6px; }
+  .panel-body { padding: 12px 20px 16px; }
+  .game-title { font-size: 20px; }
+  .game-subtitle { margin-bottom: 12px; }
+  .field { margin-bottom: 8px; }
+  .corner { display: none; }
+}
+@media (min-width: 768px) {
+  .panel-body { padding: 36px 32px 40px; }
+  .game-title { font-size: 46px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="scanlines"></div>
+<div class="particles" id="particles"></div>
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="awakening-overlay" id="awakeningOverlay">
+  <div class="awakening-text">[ GATE OPENING ]</div>
+  <div class="awakening-bar-wrap"><div class="awakening-bar" id="awakeningBar"></div></div>
+  <div class="awakening-sub">กำลังโหลดข้อมูลฮันเตอร์...</div>
+</div>
+
+<div class="page">
+  <div class="system-panel">
+
+    <div class="panel-header">
+      <span class="panel-header-title">SYSTEM // HUNTER AUTHENTICATION</span>
+      <div class="panel-header-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-gold"></div>
+        <div class="dot dot-blue"></div>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <div class="system-alert">[ SYSTEM NOTICE ] — New Gate detected</div>
+      <div class="game-title">THE ETERNAL<br>GATE</div>
+      <div class="game-subtitle">Hunter System · Gate Classification</div>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">เข้าสู่ระบบ</button>
+        <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">สมัครสมาชิก</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="form-section active" id="formLogin">
+        <div class="field">
+          <label class="field-label" for="loginEmail">// Hunter Email</label>
+          <input class="field-input" type="email" id="loginEmail"
+                 placeholder="hunter@example.com" autocomplete="email" inputmode="email">
+        </div>
+        <div class="field">
+          <label class="field-label" for="loginPassword">// Access Code</label>
+          <input class="field-input" type="password" id="loginPassword"
+                 placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" id="loginBtn" onclick="handleLogin()">
+          <span>[ ENTER SYSTEM ]</span>
+        </button>
+        <div class="status-msg" id="loginStatus"></div>
+        <div class="system-line">Secure channel · TLS 1.3</div>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="form-section" id="formRegister">
+        <div class="field">
+          <label class="field-label" for="regUsername">// Hunter Codename</label>
+          <input class="field-input" type="text" id="regUsername"
+                 placeholder="ShadowMonarch" autocomplete="username"
+                 maxlength="30" oninput="validateUsername(this)">
+        </div>
+        <div class="field">
+          <label class="field-label" for="regEmail">// Contact Email</label>
+          <input class="field-input" type="email" id="regEmail"
+                 placeholder="hunter@example.com" autocomplete="email" inputmode="email">
+        </div>
+        <div class="field">
+          <label class="field-label" for="regPassword">// Set Access Code</label>
+          <input class="field-input" type="password" id="regPassword"
+                 placeholder="อย่างน้อย 8 ตัวอักษร" autocomplete="new-password" minlength="8">
+        </div>
+        <button class="btn-primary" id="registerBtn" onclick="handleRegister()">
+          <span>[ AWAKEN AS HUNTER ]</span>
+        </button>
+        <div class="status-msg" id="registerStatus"></div>
+        <div class="system-line">ข้อมูลส่วนตัวปลอดภัย 100%</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL  = 'https://ejurtaivfrozzhassvgf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXJ0YWl2ZnJvenpoYXNzdmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTM5MTYsImV4cCI6MjA5MDMyOTkxNn0.m9LaUaK3eRwY_TxdI0aCrnEASsqE4WdIioALfYVjVI0';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* Particles — 8 ตัว ไม่มี box-shadow */
+requestAnimationFrame(() => {
+  const c = document.getElementById('particles');
+  const n = window.innerWidth < 480 ? 6 : 8;
+  const f = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `left:${Math.random()*100}%;--dur:${6+Math.random()*6}s;--delay:${-Math.random()*10}s;--drift:${(Math.random()-.5)*40}px`;
+    f.appendChild(p);
+  }
+  c.appendChild(f);
+});
+
+function switchTab(tab) {
+  ['Login','Register'].forEach(t => {
+    const a = t.toLowerCase() === tab;
+    document.getElementById('tab'+t).classList.toggle('active', a);
+    document.getElementById('form'+t).classList.toggle('active', a);
+  });
+  clearStatus();
+}
+
+function clearStatus() {
+  ['loginStatus','registerStatus'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'status-msg'; el.innerHTML = '';
+  });
+}
+
+function validateUsername(input) {
+  input.value = input.value.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g,'');
+}
+
+function setStatus(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = `status-msg ${type}`;
+  el.innerHTML = type === 'loading'
+    ? `<span class="spinner"></span>${msg}`
+    : (type === 'error' ? '[ ERROR ] ' : '[ OK ] ') + msg;
+}
+
+function setLoading(id, v) { document.getElementById(id).disabled = v; }
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  if (!email || !pass) { setStatus('loginStatus','error','กรุณากรอกอีเมลและรหัสผ่าน'); return; }
+  setLoading('loginBtn',true);
+  setStatus('loginStatus','loading','กำลังตรวจสอบ Hunter ID...');
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  if (error) { setStatus('loginStatus','error',translateError(error.message)); setLoading('loginBtn',false); return; }
+  const { data: char } = await supabase.from('characters').select('id').eq('user_id',data.user.id).single();
+  triggerAwakening(() => { window.location.href = char ? 'hub.html' : 'create-character.html'; });
+}
+
+async function handleRegister() {
+  const username = document.getElementById('regUsername').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const pass     = document.getElementById('regPassword').value;
+  if (!username||!email||!pass) { setStatus('registerStatus','error','กรุณากรอกข้อมูลให้ครบ'); return; }
+  if (username.length < 3)      { setStatus('registerStatus','error','Codename ต้องมีอย่างน้อย 3 ตัวอักษร'); return; }
+  if (pass.length < 8)          { setStatus('registerStatus','error','Access Code ต้องมีอย่างน้อย 8 ตัวอักษร'); return; }
+  setLoading('registerBtn',true);
+  setStatus('registerStatus','loading','กำลังลงทะเบียนในระบบ Hunter Association...');
+  const { data: ex } = await supabase.from('profiles').select('username').eq('username',username).maybeSingle();
+  if (ex) { setStatus('registerStatus','error','Codename "'+username+'" ถูกใช้แล้ว'); setLoading('registerBtn',false); return; }
+  const { data, error } = await supabase.auth.signUp({ email, password: pass, options:{ data:{ username, display_name: username } } });
+  if (error) { setStatus('registerStatus','error',translateError(error.message)); setLoading('registerBtn',false); return; }
+  await new Promise(r => setTimeout(r,800));
+  await supabase.from('profiles').update({ username }).eq('id',data.user.id);
+  setStatus('registerStatus','success','ยืนยันอีเมลของคุณเพื่อเริ่ม Awakening!');
+  setLoading('registerBtn',false);
+  if (data.session) triggerAwakening(() => { window.location.href = 'create-character.html'; });
+}
+
+function triggerAwakening(cb) {
+  const overlay = document.getElementById('awakeningOverlay');
+  const bar     = document.getElementById('awakeningBar');
+  overlay.classList.add('show');
+  bar.style.animation = 'none'; bar.offsetHeight;
+  bar.style.animation = 'bar-fill 1.6s cubic-bezier(0.16,1,0.3,1) forwards';
+  setTimeout(cb, 1800);
+}
+
+function translateError(msg) {
+  if (msg.includes('Invalid login'))       return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+  if (msg.includes('Email not confirmed')) return 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
+  if (msg.includes('already registered')) return 'อีเมลนี้ถูกลงทะเบียนแล้ว';
+  if (msg.includes('rate limit'))          return 'ลองใหม่อีกครั้งใน 1 นาที';
+  if (msg.includes('Network'))             return 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
+  return msg;
+}
+
+(async function checkSession() {
+  const { data:{ session } } = await supabase.auth.getSession();
+  if (!session) return;
+  const { data: char } = await supabase.from('characters').select('id').eq('user_id',session.user.id).single();
+  window.location.href = char ? 'hub.html' : 'create-character.html';
+})();
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  document.getElementById('formLogin').classList.contains('active') ? handleLogin() : handleRegister();
+});
+</script>
+</body>
+</html>

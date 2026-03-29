@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>NEON DESTINY — Hunter Awakening Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;400;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --nb:#00c8ff; --nr:#ff003c; --ng:#00ff88; --np:#9b4dff;
+  --base:#020609; --p2:#060e16; --p3:#0b1824;
+  --bdr:rgba(0,200,255,.13); --bdim:rgba(0,200,255,.06);
+  --thi:#cce8f5; --tmd:#5a9ab5; --tdim:#1e4055;
+  --fd:'Saira Condensed',sans-serif; --fm:'Share Tech Mono',monospace; --fth:'Noto Sans Thai',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-text-size-adjust:100%}
+html{height:100%;overscroll-behavior:none}
+body{min-height:100%;background:var(--base);color:var(--thi);font-family:'Saira Condensed','Noto Sans Thai',sans-serif;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+
+.bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 90% 55% at 50% -5%,rgba(0,70,110,.32) 0%,transparent 65%),radial-gradient(ellipse 40% 35% at 90% 90%,rgba(70,0,140,.14) 0%,transparent 60%),var(--base)}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,255,.005) 3px,rgba(0,200,255,.005) 4px)}
+.corner{position:fixed;z-index:2;pointer-events:none;width:36px;height:36px;border-color:rgba(0,200,255,.17);border-style:solid}
+.c-tl{top:12px;left:12px;border-width:1px 0 0 1px}.c-tr{top:12px;right:12px;border-width:1px 1px 0 0}
+.c-bl{bottom:12px;left:12px;border-width:0 0 1px 1px}.c-br{bottom:12px;right:12px;border-width:0 1px 1px 0}
+.pts{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.pt{position:absolute;border-radius:50%;opacity:0;animation:fup var(--d,8s) var(--dl,0s) ease-in infinite}
+@keyframes fup{0%{transform:translateY(105vh);opacity:0}10%{opacity:var(--op,.3)}90%{opacity:calc(var(--op,.3)*.1)}100%{transform:translateY(-8vh) translateX(var(--dx,0px));opacity:0}}
+
+.page{position:relative;z-index:10;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:14px 12px env(safe-area-inset-bottom,14px)}
+
+/* TOPBAR */
+.topbar{width:100%;max-width:700px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px}
+.tb-l{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--tdim);text-transform:uppercase}
+.tb-r{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--nb);letter-spacing:.1em}
+.tb-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--nb);margin-right:6px;animation:pdot 2s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:.8;box-shadow:0 0 5px var(--nb)}50%{opacity:.2;box-shadow:none}}
+
+/* PROGRESS */
+.prog{width:100%;max-width:700px;margin-bottom:16px}
+.prog-b{display:flex;gap:5px}
+.pb{flex:1;height:2px;background:var(--bdim);position:relative;overflow:hidden;border-radius:1px;transition:background .4s}
+.pb.done{background:rgba(0,200,255,.45)}.pb.now{background:rgba(0,200,255,.18)}
+.pb.now::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--nb));animation:sw 1.5s ease-in-out infinite}
+@keyframes sw{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.prog-l{display:flex;gap:5px;margin-top:5px}
+.pbl{flex:1;font-family:'Share Tech Mono',monospace;font-size:8px;text-align:center;letter-spacing:.08em;text-transform:uppercase;color:var(--tdim);transition:color .3s}
+.pbl.now{color:var(--nb)}.pbl.done{color:rgba(0,200,255,.4)}
+
+/* PANEL */
+.panel{width:100%;max-width:700px;background:rgba(4,12,22,.97);border:1px solid var(--bdr);box-shadow:0 0 40px rgba(0,200,255,.04),inset 0 1px 0 rgba(0,200,255,.05)}
+.ph{height:42px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);background:rgba(0,200,255,.025);position:sticky;top:0;z-index:20}
+.ph-t{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--tdim);text-transform:uppercase}
+.ph-b{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.1em;padding:2px 8px;border:1px solid rgba(0,200,255,.2);color:var(--nb);text-transform:uppercase}
+.pb2{padding:20px 18px 28px}
+
+/* STEP VIEWS */
+.sv{display:none}.sv.on{display:block;animation:fi .22s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.s-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--nb);text-transform:uppercase;opacity:.65;margin-bottom:3px}
+.s-ttl{font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:clamp(17px,5vw,26px);letter-spacing:.05em;color:var(--thi);margin-bottom:18px;text-shadow:0 0 18px rgba(0,200,255,.14)}
+
+/* FIELDS */
+.field{margin-bottom:14px}
+.fl{display:block;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--tdim);text-transform:uppercase;margin-bottom:6px}
+.fi{width:100%;padding:13px 15px;background:rgba(0,200,255,.022);border:1px solid var(--bdr);color:var(--thi);font-family:'Share Tech Mono',monospace;font-size:15px;outline:none;border-radius:0;-webkit-appearance:none;transition:border-color .2s,background .2s;letter-spacing:.04em}
+.fi::placeholder{color:rgba(46,80,96,.5);font-size:13px}.fi:focus{border-color:rgba(0,200,255,.38);background:rgba(0,200,255,.04)}
+.fhint{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--tdim);margin-top:5px;letter-spacing:.07em}
+
+/* CLASS GRID */
+.cg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px}
+.cc{position:relative;padding:13px 11px 11px;cursor:pointer;background:rgba(0,200,255,.02);border:1px solid rgba(0,200,255,.09);transition:all .18s;overflow:hidden;-webkit-user-select:none;user-select:none}
+.cc::before{content:'';position:absolute;inset:0;background:var(--c,transparent);opacity:0;transition:opacity .2s}
+.cc:active{transform:scale(.97)}.cc.sel{border-color:var(--c,var(--nb))}.cc.sel::before{opacity:.07}.cc.sel .ccn{color:var(--c,var(--nb))}
+.cc-ico{font-size:24px;margin-bottom:7px;display:block;line-height:1}
+.ccn{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--tmd);transition:color .2s;margin-bottom:2px}
+.cct{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.07em;color:var(--tdim);text-transform:none;line-height:1.4}
+.cc-bdg{position:absolute;top:7px;right:7px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:.08em;padding:2px 5px;text-transform:uppercase}
+.bdg-s{background:rgba(255,0,60,.1);color:var(--nr);border:1px solid rgba(255,0,60,.22)}.bdg-sp{background:rgba(255,200,68,.07);color:#ffcc44;border:1px solid rgba(255,200,68,.18)}
+.cc-bars{margin-top:7px;display:flex;flex-direction:column;gap:3px}
+.srow{display:flex;align-items:center;gap:5px}
+.slbl{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--tdim);width:22px;flex-shrink:0}
+.sbw{flex:1;height:2px;background:rgba(255,255,255,.05);overflow:hidden}
+.sbar{height:100%;background:var(--c,var(--nb));opacity:.7;transition:width .4s .1s}
+.cc:not(.sel) .sbar{width:0!important}
+.ld-box{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--tdim);padding:20px;text-align:center;letter-spacing:.1em}
+
+/* COUNTRY */
+.cs-wrap{position:relative;margin-bottom:9px}
+.cs-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tdim);font-size:14px;pointer-events:none}
+.cs-pl{padding-left:34px!important}
+.cg3{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px;max-height:280px;overflow-y:auto;padding-right:3px}
+.cg3::-webkit-scrollbar{width:3px}.cg3::-webkit-scrollbar-thumb{background:rgba(0,200,255,.18)}
+.ccard{padding:9px 10px;cursor:pointer;background:rgba(0,200,255,.02);border:1px solid rgba(0,200,255,.07);transition:all .15s;display:flex;align-items:center;gap:7px;-webkit-user-select:none;user-select:none}
+.ccard:active{transform:scale(.97)}.ccard.sel{border-color:rgba(0,200,255,.35);background:rgba(0,200,255,.05)}
+.cflag{font-size:17px;line-height:1;flex-shrink:0}
+.cinfo{min-width:0;flex:1}.cen{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.03em;color:var(--tmd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cth{font-family:'Noto Sans Thai',sans-serif;font-size:10px;color:var(--tdim)}
+.ctier{font-family:'Share Tech Mono',monospace;font-size:8px;padding:1px 4px;margin-left:auto;flex-shrink:0}
+.t-S{color:#ff3355;border:1px solid rgba(255,0,60,.3)}.t-A{color:#ff8800;border:1px solid rgba(255,136,0,.3)}
+.t-B{color:var(--nb);border:1px solid rgba(0,200,255,.25)}.t-C{color:var(--tdim);border:1px solid rgba(80,120,140,.2)}
+
+/* PRESET GRID */
+.ps-sec{margin-bottom:20px}
+.ps-hd{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--tdim);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.ps-hd::after{content:'';flex:1;height:1px;background:var(--bdim)}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:7px;max-height:250px;overflow-y:auto;padding-right:3px}
+.pg::-webkit-scrollbar{width:3px}.pg::-webkit-scrollbar-thumb{background:rgba(0,200,255,.14)}
+.pcard{padding:8px 6px 8px;cursor:pointer;text-align:center;background:rgba(0,200,255,.02);border:1px solid rgba(0,200,255,.07);transition:all .15s;-webkit-user-select:none;user-select:none}
+.pcard:active{transform:scale(.96)}.pcard.sel{border-color:rgba(0,200,255,.38);background:rgba(0,200,255,.05)}.pcard.sel .pn{color:var(--nb)}
+/* placeholder img */
+.pci{width:100%;aspect-ratio:1;background:var(--p3);border:1px solid rgba(0,200,255,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:5px;position:relative;overflow:hidden}
+.pci::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(0,200,255,.04) 100%)}
+.pci-ico{font-size:18px;opacity:.35;margin-bottom:2px}
+.pci-txt{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--tdim);letter-spacing:.1em;text-align:center;line-height:1.6;animation:blink 2.5s step-end infinite}
+@keyframes blink{0%,100%{opacity:.7}50%{opacity:.15}}
+.pcard.sel .pci{border-color:rgba(0,200,255,.28);background:rgba(0,200,255,.04)}
+.hair-dot2{width:22px;height:22px;border-radius:50%;margin:0 auto 3px}
+.pn{font-family:'Noto Sans Thai',sans-serif;font-size:10px;color:var(--tmd);transition:color .2s;line-height:1.3}
+.pt3{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--tdim);text-transform:uppercase;letter-spacing:.07em;margin-top:1px}
+
+/* SUMMARY */
+.sum{border:1px solid var(--bdr);background:rgba(0,200,255,.02);padding:18px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(0,200,255,.05)}
+.sr:last-child{border-bottom:none}
+.sk{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.13em;color:var(--tdim);text-transform:uppercase}
+.sv2{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.05em;color:var(--thi)}
+.spg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}
+.spi{text-align:center;padding:9px 3px;background:rgba(0,200,255,.025);border:1px solid rgba(0,200,255,.06)}
+.spv{font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--nb)}.spl{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--tdim);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.sec-box{margin-top:12px;padding:11px 13px;border:1px solid rgba(255,0,60,.2);background:rgba(255,0,60,.03);font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,80,100,.8);letter-spacing:.05em;line-height:1.7;display:none}
+.sec-box.on{display:block;animation:fi .3s ease}
+
+/* BUTTONS */
+.brow{display:flex;gap:9px;margin-top:18px}
+.btn{flex:1;padding:15px;background:transparent;border:1px solid rgba(0,200,255,.22);color:var(--tmd);font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;min-height:50px;transition:all .2s}
+.btn:hover,.btn:active{background:rgba(0,200,255,.06);border-color:rgba(0,200,255,.4);color:var(--nb)}
+.btn.back{flex:0 0 auto;padding:15px 16px;font-size:12px}
+.btn:disabled{opacity:.25;cursor:not-allowed}
+/* ACCEPT / NEON BUTTON */
+.btn-ac{flex:1;padding:16px;background:rgba(0,200,255,.04);border:1px solid rgba(0,200,255,.5);color:var(--nb);font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:14px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;min-height:52px;position:relative;overflow:hidden;box-shadow:0 0 14px rgba(0,200,255,.1),inset 0 0 12px rgba(0,200,255,.04);transition:all .25s}
+.btn-ac::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,200,255,.08),transparent);transform:translateX(-100%)}
+.btn-ac:hover,.btn-ac:active{background:rgba(0,200,255,.1);border-color:var(--nb);box-shadow:0 0 26px rgba(0,200,255,.22),inset 0 0 18px rgba(0,200,255,.07)}
+.btn-ac:hover::before{animation:shine .8s ease forwards}
+@keyframes shine{to{transform:translateX(100%)}}
+.btn-ac:disabled{opacity:.25;cursor:not-allowed}
+.btn-ac.dng{border-color:rgba(255,0,60,.5);color:var(--nr);background:rgba(255,0,60,.04);box-shadow:0 0 14px rgba(255,0,60,.12),inset 0 0 10px rgba(255,0,60,.04)}
+.btn-ac.dng:hover{background:rgba(255,0,60,.09);box-shadow:0 0 28px rgba(255,0,60,.24)}
+
+/* STATUS */
+.stmsg{margin-top:11px;padding:10px 13px;display:none;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.04em;word-break:break-word}
+.stmsg.err{display:block;border:1px solid rgba(255,0,60,.18);color:#cc4455;background:rgba(255,0,60,.03)}
+.stmsg.ok{display:block;border:1px solid rgba(0,200,255,.18);color:var(--nb);background:rgba(0,200,255,.03)}
+.stmsg.ld{display:block;border:1px solid rgba(0,200,255,.1);color:var(--tdim);background:rgba(0,200,255,.02)}
+.spin{display:inline-block;width:10px;height:10px;border:1px solid rgba(0,200,255,.2);border-top-color:var(--nb);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* AWAKENING OVERLAY */
+.aw{position:fixed;inset:0;z-index:1000;background:var(--base);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;opacity:0;pointer-events:none;transition:opacity .4s}
+.aw.on{opacity:1;pointer-events:all}
+.aw-main{font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:clamp(14px,4.5vw,26px);letter-spacing:.2em;color:var(--nb);text-transform:uppercase;text-align:center;text-shadow:0 0 20px rgba(0,200,255,.3)}
+.aw-rank{font-family:'Share Tech Mono',monospace;font-size:clamp(26px,8vw,48px);letter-spacing:.1em;margin:3px 0;text-shadow:0 0 30px currentColor}
+.aw-name{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:clamp(13px,4vw,20px);letter-spacing:.12em;color:var(--tmd)}
+.aw-bw{width:min(260px,72vw);height:1px;background:rgba(0,200,255,.1);overflow:hidden}
+.aw-b{height:100%;background:linear-gradient(90deg,transparent,var(--nb));width:0}
+@keyframes bfill{to{width:100%}}
+.aw-sub{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--tdim);animation:blink 1.8s step-end infinite}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(0,200,255,.14)}
+@media(max-width:380px){.pb2{padding:13px 11px 18px}.cg2{grid-template-columns:repeat(2,1fr);gap:7px}.pg{grid-template-columns:repeat(3,1fr)}.spg{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:600px){.page{padding:20px}.pb2{padding:26px 28px 32px}}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="scan"></div>
+<div class="pts" id="pts"></div>
+<div class="corner c-tl"></div><div class="corner c-tr"></div><div class="corner c-bl"></div><div class="corner c-br"></div>
+
+<!-- AWAKENING -->
+<div class="aw" id="awOv">
+  <div class="aw-main">[ AWAKENING COMPLETE ]</div>
+  <div class="aw-rank" id="awRank">E — RANK</div>
+  <div class="aw-name" id="awName"></div>
+  <div class="aw-bw"><div class="aw-b" id="awBar"></div></div>
+  <div class="aw-sub">กำลังบันทึกในระบบ Hunter Association...</div>
+</div>
+
+<div class="page">
+  <div class="topbar">
+    <span class="tb-l">SYSTEM // HUNTER CREATION</span>
+    <span class="tb-r"><span class="tb-dot"></span><span id="stepLbl">STEP 1 / 4</span></span>
+  </div>
+  <div class="prog">
+    <div class="prog-b">
+      <div class="pb now" id="pb1"></div><div class="pb" id="pb2"></div>
+      <div class="pb" id="pb3"></div><div class="pb" id="pb4"></div>
+    </div>
+    <div class="prog-l">
+      <div class="pbl now" id="pl1">CLASS</div><div class="pbl" id="pl2">ORIGIN</div>
+      <div class="pbl" id="pl3">APPEARANCE</div><div class="pbl" id="pl4">CONFIRM</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph">
+      <span class="ph-t" id="phT">// SELECT YOUR CLASS</span>
+      <span class="ph-b" id="phB">AWAKENING PROTOCOL</span>
+    </div>
+    <div class="pb2">
+
+      <!-- STEP 1: CLASS -->
+      <div class="sv on" id="s1">
+        <div class="s-lbl">[ ABILITY SCAN ]</div>
+        <div class="s-ttl">Choose Your Path</div>
+        <div class="cg2" id="clsGrid"><div class="ld-box"><span class="spin"></span> Loading classes...</div></div>
+        <div class="brow">
+          <button class="btn-ac" id="n1" onclick="go(2)" disabled>[ CONFIRM CLASS ] →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: ORIGIN -->
+      <div class="sv" id="s2">
+        <div class="s-lbl">[ HUNTER REGISTRY ]</div>
+        <div class="s-ttl">Hunter Identity</div>
+        <div class="field">
+          <label class="fl" for="iName">// Character Name</label>
+          <input class="fi" type="text" id="iName" placeholder="ShadowMonarch" maxlength="30" oninput="onName(this)" autocomplete="off">
+          <div class="fhint">// 3-30 ตัวอักษร · ตัวอักษร ตัวเลข _ ไทย</div>
+        </div>
+        <div class="field">
+          <label class="fl">// Nationality</label>
+          <div class="cs-wrap">
+            <span class="cs-ico">⌕</span>
+            <input class="fi cs-pl" type="text" id="cSrch" placeholder="ค้นหาประเทศ / Search country..." oninput="filterC(this.value)">
+          </div>
+          <div class="cg3" id="ctGrid"><div class="ld-box"><span class="spin"></span> Loading countries...</div></div>
+        </div>
+        <div class="field">
+          <label class="fl" for="iArea">// Current Area / Sector</label>
+          <input class="fi" type="text" id="iArea" placeholder="ระบุพื้นที่ที่ท่านประจำการ เช่น กรุงเทพมหานคร" maxlength="80" oninput="chkS2()">
+          <div class="fhint">// จังหวัดหรือพื้นที่สังกัด (ไม่บังคับ)</div>
+        </div>
+        <div class="brow">
+          <button class="btn back" onclick="go(1)">← BACK</button>
+          <button class="btn-ac" id="n2" onclick="go(3)" disabled>[ CONFIRM ] →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: APPEARANCE -->
+      <div class="sv" id="s3">
+        <div class="s-lbl">[ APPEARANCE MATRIX ]</div>
+        <div class="s-ttl">Face &amp; Hair</div>
+        <div class="ps-sec">
+          <div class="ps-hd">// Face Preset</div>
+          <div class="pg" id="fGrid"><div class="ld-box"><span class="spin"></span> Loading faces...</div></div>
+        </div>
+        <div class="ps-sec">
+          <div class="ps-hd">// Hair Preset</div>
+          <div class="pg" id="hGrid"><div class="ld-box"><span class="spin"></span> Loading hairstyles...</div></div>
+        </div>
+        <div class="brow">
+          <button class="btn back" onclick="go(2)">← BACK</button>
+          <button class="btn-ac" id="n3" onclick="go(4)" disabled>[ CONFIRM ] →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: CONFIRM -->
+      <div class="sv" id="s4">
+        <div class="s-lbl">[ FINAL VERIFICATION ]</div>
+        <div class="s-ttl">Hunter Profile</div>
+        <div class="sum" id="sumCard"></div>
+        <div class="spg" id="spGrid"></div>
+        <div class="sec-box" id="secWarn">⚠ SHADOW HEIR — อาชีพลับ<br>สเตตัสทุกอย่าง ×1.5 &nbsp;·&nbsp; ชื่อจะแสดงสีแดงนีออนทั่วโลก</div>
+        <div class="brow">
+          <button class="btn back" onclick="go(3)">← BACK</button>
+          <button class="btn-ac" id="confBtn" onclick="createChar()">✦ ACCEPT — AWAKEN AS HUNTER</button>
+        </div>
+        <div class="stmsg" id="confSt"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SURL='https://ejurtaivfrozzhassvgf.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXJ0YWl2ZnJvenpoYXNzdmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTM5MTYsImV4cCI6MjA5MDMyOTkxNn0.m9LaUaK3eRwY_TxdI0aCrnEASsqE4WdIioALfYVjVI0';
+const sb=window.supabase.createClient(SURL,SKEY);
+
+/* ── STATE ── */
+const S={step:1,clsId:null,clsName:null,clsCol:'#00c8ff',clsSt:{STR:10,AGI:10,INT:10,DEF:10},isSec:false,country:null,ctName:null,ctTh:null,ctFlag:'',name:'',area:'',faceId:null,faceName:null,hairId:null,hairName:null,hairCol:'#333'};
+let DB={cls:[],ct:[],faces:[],hairs:[]},filtCt=[];
+
+/* ── PARTICLES ── */
+requestAnimationFrame(()=>{
+  const c=document.getElementById('pts'),n=window.innerWidth<480?10:18,f=document.createDocumentFragment();
+  const cols=['#00c8ff','#9b4dff','#ff003c','#00ff88'];
+  for(let i=0;i<n;i++){const p=document.createElement('div');p.className='pt';const col=cols[i%cols.length],sz=Math.random()<.7?1:2;p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${col};--d:${7+Math.random()*9}s;--dl:${-Math.random()*14}s;--dx:${(Math.random()-.5)*55}px;--op:${.2+Math.random()*.3}`;f.appendChild(p);}c.appendChild(f);
+});
+
+/* ── LOAD FROM SUPABASE ── */
+async function loadAll(){
+  try{
+    const[rc,rct,rf,rh]=await Promise.all([
+      sb.from('classes').select('id,name,category,description,base_str,base_agi,base_int,base_def,stat_multiplier,color_hex').order('id'),
+      sb.from('countries').select('code,name_en,name_th,rank_tier').order('name_en'),
+      sb.from('face_presets').select('id,name_th,style_tag,gender_hint').order('id'),
+      sb.from('hair_presets').select('id,name_th,length_tag,color_tag').order('id'),
+    ]);
+    if(rc.data&&rc.data.length)  DB.cls=rc.data;
+    if(rct.data&&rct.data.length) DB.ct=rct.data;
+    if(rf.data&&rf.data.length)  DB.faces=rf.data;
+    if(rh.data&&rh.data.length)  DB.hairs=rh.data;
+  }catch(e){console.warn('Supabase load error, using fallback',e);}
+  if(!DB.cls.length)   DB.cls=FB_CLS;
+  if(!DB.ct.length)    DB.ct=FB_CT;
+  if(!DB.faces.length) DB.faces=FB_FACES;
+  if(!DB.hairs.length) DB.hairs=FB_HAIRS;
+  filtCt=[...DB.ct];
+  renderCls();renderCt(filtCt);renderFaces();renderHairs();
+}
+
+/* ── ICONS & COLORS ── */
+const ICONS={1:'⚔️',2:'🔮',3:'🗡️',4:'🛡️',5:'💚',6:'💰',7:'👁️'};
+const FICOS={cold:'🧊',fierce:'⚔️',playful:'😄',mysterious:'🌑',noble:'👑',gentle:'💚',cunning:'🎭',wild:'🐺',shadow:'👁️',veteran:'🪖',prodigy:'⚡',immortal:'♾️'};
+const FLAGS={TH:'🇹🇭',JP:'🇯🇵',KR:'🇰🇷',CN:'🇨🇳',US:'🇺🇸',GB:'🇬🇧',FR:'🇫🇷',DE:'🇩🇪',RU:'🇷🇺',CA:'🇨🇦',AU:'🇦🇺',IN:'🇮🇳',BR:'🇧🇷',MX:'🇲🇽',SG:'🇸🇬',SA:'🇸🇦',AE:'🇦🇪',TR:'🇹🇷',IL:'🇮🇱',IT:'🇮🇹',ES:'🇪🇸',NL:'🇳🇱',SE:'🇸🇪',NO:'🇳🇴',PL:'🇵🇱',CH:'🇨🇭',UA:'🇺🇦',GR:'🇬🇷',AR:'🇦🇷',CO:'🇨🇴',CL:'🇨🇱',PE:'🇵🇪',NG:'🇳🇬',EG:'🇪🇬',ZA:'🇿🇦',KE:'🇰🇪',ET:'🇪🇹',MA:'🇲🇦',GH:'🇬🇭',ID:'🇮🇩',PH:'🇵🇭',VN:'🇻🇳',MY:'🇲🇾',PK:'🇵🇰',BD:'🇧🇩',NZ:'🇳🇿',PT:'🇵🇹',LK:'🇱🇰',IR:'🇮🇷',VE:'🇻🇪'};
+const HCOLS={black:'#111',dark_brown:'#2a1a0a',silver:'#c0c0d0',white:'#eeeeee',blue:'#0055cc',dark_purple:'#440077',red:'#cc1122',orange:'#cc5500',blonde:'#cc9900',emerald:'#005533',shadow_black:'#08080f',neon_red:'#ff0033',golden:'#bb8800',blue_purple:'#4422aa',red_orange:'#cc3300',dark_grey:'#333344',black_white:'#778899',black_red:'#551122',half_silver_black:'#667788'};
+
+/* ── RENDER CLASSES ── */
+function renderCls(){
+  const g=document.getElementById('clsGrid');
+  if(!DB.cls.length){g.innerHTML='<div class="ld-box">ไม่พบข้อมูล Class</div>';return;}
+  g.innerHTML=DB.cls.map(c=>{
+    const col=c.color_hex||'#00c8ff',mx=30;
+    const s={STR:c.base_str||10,AGI:c.base_agi||10,INT:c.base_int||10,DEF:c.base_def||10};
+    const bars=['STR','AGI','INT','DEF'].map(k=>`<div class="srow"><span class="slbl">${k}</span><div class="sbw"><div class="sbar" style="width:${s[k]/mx*100}%;--c:${col}"></div></div></div>`).join('');
+    const bdg=c.category==='secret'?`<span class="cc-bdg bdg-s">SECRET</span>`:c.category==='special'?`<span class="cc-bdg bdg-sp">SPECIAL</span>`:'';
+    return`<div class="cc" id="cc${c.id}" style="--c:${col}" onclick="selCls(${c.id})">${bdg}<span class="cc-ico">${ICONS[c.id]||'⚡'}</span><div class="ccn">${c.name}</div><div class="cct">${(c.description||'').substring(0,32)}…</div><div class="cc-bars">${bars}</div></div>`;
+  }).join('');
+}
+function selCls(id){
+  const c=DB.cls.find(x=>x.id===id);if(!c)return;
+  S.clsId=c.id;S.clsName=c.name;S.clsCol=c.color_hex||'#00c8ff';S.isSec=c.category==='secret';
+  const m=c.stat_multiplier||1;
+  S.clsSt={STR:Math.round((c.base_str||10)*m),AGI:Math.round((c.base_agi||10)*m),INT:Math.round((c.base_int||10)*m),DEF:Math.round((c.base_def||10)*m)};
+  document.querySelectorAll('.cc').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('cc'+id).classList.add('sel');
+  const btn=document.getElementById('n1');
+  btn.disabled=false;btn.style.borderColor=S.clsCol+'88';btn.style.color=S.clsCol;btn.style.boxShadow=`0 0 14px ${S.clsCol}22,inset 0 0 10px ${S.clsCol}08`;
+}
+
+/* ── RENDER COUNTRIES ── */
+function renderCt(list){
+  const g=document.getElementById('ctGrid');
+  if(!list.length){g.innerHTML='<div class="ld-box">ไม่พบประเทศ</div>';return;}
+  g.innerHTML=list.map(c=>`<div class="ccard" id="ct${c.code}" onclick="selCt('${c.code}')"><span class="cflag">${FLAGS[c.code]||'🌐'}</span><div class="cinfo"><div class="cen">${c.name_en}</div><div class="cth">${c.name_th||''}</div></div><span class="ctier t-${c.rank_tier||'B'}">${c.rank_tier||'B'}</span></div>`).join('');
+  if(S.country){const e=document.getElementById('ct'+S.country);if(e)e.classList.add('sel');}
+}
+function filterC(q){filtCt=q?DB.ct.filter(c=>c.name_en.toLowerCase().includes(q.toLowerCase())||(c.name_th||'').includes(q)||c.code.toLowerCase().includes(q.toLowerCase())):DB.ct;renderCt(filtCt);}
+function selCt(code){
+  const c=DB.ct.find(x=>x.code===code);if(!c)return;
+  S.country=c.code;S.ctName=c.name_en;S.ctTh=c.name_th||'';S.ctFlag=FLAGS[c.code]||'🌐';
+  document.querySelectorAll('.ccard').forEach(e=>e.classList.remove('sel'));
+  const e=document.getElementById('ct'+code);if(e)e.classList.add('sel');
+  chkS2();
+}
+function onName(inp){inp.value=inp.value.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g,'');S.name=inp.value;chkS2();}
+function chkS2(){S.name=document.getElementById('iName').value.trim();S.area=document.getElementById('iArea').value.trim();document.getElementById('n2').disabled=!(S.name.length>=3&&S.country);}
+
+/* ── RENDER FACES ── */
+function renderFaces(){
+  const g=document.getElementById('fGrid');
+  if(!DB.faces.length){g.innerHTML='<div class="ld-box">ไม่พบข้อมูล</div>';return;}
+  g.innerHTML=DB.faces.map(f=>`<div class="pcard" id="f${f.id}" onclick="selFace(${f.id})"><div class="pci"><span class="pci-ico">${FICOS[f.style_tag]||'😶'}</span><div class="pci-txt">System<br>Loading...</div></div><div class="pn">${f.name_th}</div><div class="pt3">${f.style_tag||''}</div></div>`).join('');
+}
+function selFace(id){
+  const f=DB.faces.find(x=>x.id===id);if(!f)return;
+  S.faceId=f.id;S.faceName=f.name_th;
+  document.querySelectorAll('#fGrid .pcard').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('f'+id).classList.add('sel');chkS3();
+}
+
+/* ── RENDER HAIRS ── */
+function renderHairs(){
+  const g=document.getElementById('hGrid');
+  if(!DB.hairs.length){g.innerHTML='<div class="ld-box">ไม่พบข้อมูล</div>';return;}
+  g.innerHTML=DB.hairs.map(h=>{const col=HCOLS[h.color_tag]||'#334';return`<div class="pcard" id="h${h.id}" onclick="selHair(${h.id},'${col}')"><div class="pci"><div class="hair-dot2" style="background:${col};box-shadow:0 0 8px ${col}66"></div><div class="pci-txt">System<br>Loading...</div></div><div class="pn">${h.name_th}</div><div class="pt3">${h.length_tag||''}</div></div>`;}).join('');
+}
+function selHair(id,col){
+  const h=DB.hairs.find(x=>x.id===id);if(!h)return;
+  S.hairId=h.id;S.hairName=h.name_th;S.hairCol=col;
+  document.querySelectorAll('#hGrid .pcard').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('h'+id).classList.add('sel');chkS3();
+}
+function chkS3(){document.getElementById('n3').disabled=!(S.faceId&&S.hairId);}
+
+/* ── STEP NAV ── */
+const PH_T=['// SELECT YOUR CLASS','// HUNTER IDENTITY','// APPEARANCE MATRIX','// FINAL VERIFICATION'];
+const PH_B=['AWAKENING PROTOCOL','REGISTRY SYSTEM','APPEARANCE MATRIX','SYSTEM CONFIRM'];
+function go(n){
+  if(n===S.step)return;S.step=n;
+  for(let i=1;i<=4;i++){
+    document.getElementById('s'+i).classList.toggle('on',i===n);
+    document.getElementById('pb'+i).className='pb'+(i<n?' done':i===n?' now':'');
+    document.getElementById('pl'+i).className='pbl'+(i<n?' done':i===n?' now':'');
+  }
+  document.getElementById('stepLbl').textContent=`STEP ${n} / 4`;
+  document.getElementById('phT').textContent=PH_T[n-1];
+  document.getElementById('phB').textContent=PH_B[n-1];
+  if(n===4)buildSum();
+}
+
+/* ── SUMMARY ── */
+function buildSum(){
+  const nameHtml=S.isSec?`<span style="color:var(--nr);text-shadow:0 0 10px rgba(255,0,60,.4)">${S.name}</span>`:`<span style="color:${S.clsCol};text-shadow:0 0 10px ${S.clsCol}44">${S.name}</span>`;
+  document.getElementById('sumCard').innerHTML=`
+    <div class="sr"><span class="sk">Codename</span><span class="sv2">${nameHtml}</span></div>
+    <div class="sr"><span class="sk">Class</span><span class="sv2" style="color:${S.clsCol}">${ICONS[S.clsId]||'⚡'} ${S.clsName}</span></div>
+    <div class="sr"><span class="sk">Nationality</span><span class="sv2">${S.ctFlag} ${S.ctName} <span style="font-size:11px;color:var(--tdim);margin-left:4px">${S.ctTh}</span></span></div>
+    <div class="sr"><span class="sk">Current Area</span><span class="sv2">${S.area||'<span style="color:var(--tdim)">—</span>'}</span></div>
+    <div class="sr"><span class="sk">Face Preset</span><span class="sv2">${S.faceName}</span></div>
+    <div class="sr"><span class="sk">Hair Preset</span><span class="sv2">${S.hairName} <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${S.hairCol};vertical-align:middle;margin-left:5px;box-shadow:0 0 5px ${S.hairCol}66"></span></span></div>
+    <div class="sr"><span class="sk">Starting Rank</span><span class="sv2" style="color:var(--nb);text-shadow:0 0 10px rgba(0,200,255,.25)">E — RANK</span></div>`;
+  document.getElementById('spGrid').innerHTML=['STR','AGI','INT','DEF'].map(k=>`<div class="spi"><div class="spv" style="color:${S.clsCol}">${S.clsSt[k]}</div><div class="spl">${k}</div></div>`).join('');
+  document.getElementById('secWarn').classList.toggle('on',S.isSec);
+  const cb=document.getElementById('confBtn');
+  if(S.isSec){cb.classList.add('dng');cb.style.cssText='';}
+  else{cb.classList.remove('dng');cb.style.borderColor=S.clsCol+'66';cb.style.color=S.clsCol;cb.style.boxShadow=`0 0 14px ${S.clsCol}18`;}
+}
+
+/* ── CREATE CHARACTER ── */
+async function createChar(){
+  const btn=document.getElementById('confBtn');
+  btn.disabled=true;setSt('ld','กำลัง Awaken Hunter...');
+  try{
+    const{data:{session},error:se}=await sb.auth.getSession();
+    if(se||!session)throw new Error('กรุณา Login ก่อน');
+    const{data,error}=await sb.rpc('create_character',{
+      p_user_id:session.user.id,p_name:S.name,p_class_id:S.clsId,
+      p_country:S.country,p_face_id:S.faceId,p_hair_id:S.hairId,
+    });
+    if(error)throw error;
+    if(!data?.success)throw new Error(data?.error||'ไม่สามารถสร้างตัวละครได้');
+    // บันทึก current_area ถ้ามี (ALTER TABLE characters ADD COLUMN IF NOT EXISTS current_area VARCHAR(100) ต้องรันก่อน)
+    if(S.area){
+      const{data:ch}=await sb.from('characters').select('id').eq('user_id',session.user.id).single();
+      if(ch)await sb.from('characters').update({current_area:S.area}).eq('id',ch.id);
+    }
+    doAw();
+  }catch(e){setSt('err',e.message||'เกิดข้อผิดพลาด กรุณาลองใหม่');btn.disabled=false;}
+}
+function setSt(t,m){const el=document.getElementById('confSt');el.className='stmsg '+t;el.innerHTML=t==='ld'?`<span class="spin"></span>${m}`:(t==='err'?'[ ERROR ] ':'[ OK ] ')+m;}
+function doAw(){
+  document.getElementById('awName').textContent=S.name;
+  const r=document.getElementById('awRank');r.textContent='E — RANK';r.style.color=S.isSec?'var(--nr)':S.clsCol;r.style.textShadow=`0 0 30px ${S.isSec?'rgba(255,0,60,.6)':S.clsCol+'99'}`;
+  const b=document.getElementById('awBar');b.style.animation='none';b.offsetHeight;b.style.animation='bfill 2s cubic-bezier(.16,1,.3,1) forwards';
+  document.getElementById('awOv').classList.add('on');
+  setTimeout(()=>{window.location.href='hub.html';},2400);
+}
+
+/* ── FALLBACK DATA ── */
+const FB_CLS=[{id:1,name:'Warrior',category:'base',description:'นักดาบ — ต่อสู้ระยะประชิด',base_str:20,base_agi:10,base_int:5,base_def:15,stat_multiplier:1,color_hex:'#ff4455'},{id:2,name:'Mage',category:'base',description:'จอมเวทย์ — วินาศกรรมเวท',base_str:5,base_agi:8,base_int:25,base_def:7,stat_multiplier:1,color_hex:'#9b4dff'},{id:3,name:'Assassin',category:'base',description:'นักฆ่า — ความเร็วซ่อนเร้น',base_str:15,base_agi:25,base_int:8,base_def:8,stat_multiplier:1,color_hex:'#00ff88'},{id:4,name:'Tank',category:'base',description:'แทงค์ — โล่ผู้พิทักษ์',base_str:12,base_agi:5,base_int:5,base_def:30,stat_multiplier:1,color_hex:'#3399ff'},{id:5,name:'Healer',category:'base',description:'ฮีลเลอร์ — รักษาฟื้นฟู',base_str:5,base_agi:8,base_int:20,base_def:10,stat_multiplier:1,color_hex:'#ffdd44'},{id:6,name:'Merchant',category:'special',description:'พ่อค้า — ยกเว้นภาษีตลาด',base_str:5,base_agi:12,base_int:15,base_def:5,stat_multiplier:1,color_hex:'#ff9900'},{id:7,name:'Shadow Heir',category:'secret',description:'ผู้สืบทอดเงา — ×1.5 STATS',base_str:20,base_agi:14,base_int:14,base_def:14,stat_multiplier:1.5,color_hex:'#ff003c'}];
+const FB_CT=[{code:'TH',name_en:'Thailand',name_th:'ไทย',rank_tier:'A'},{code:'JP',name_en:'Japan',name_th:'ญี่ปุ่น',rank_tier:'S'},{code:'KR',name_en:'South Korea',name_th:'เกาหลีใต้',rank_tier:'S'},{code:'US',name_en:'United States',name_th:'สหรัฐอเมริกา',rank_tier:'S'},{code:'CN',name_en:'China',name_th:'จีน',rank_tier:'S'},{code:'GB',name_en:'United Kingdom',name_th:'อังกฤษ',rank_tier:'S'},{code:'FR',name_en:'France',name_th:'ฝรั่งเศส',rank_tier:'S'},{code:'DE',name_en:'Germany',name_th:'เยอรมนี',rank_tier:'S'},{code:'RU',name_en:'Russia',name_th:'รัสเซีย',rank_tier:'S'},{code:'IN',name_en:'India',name_th:'อินเดีย',rank_tier:'A'}];
+const FB_FACES=[{id:1,name_th:'ราชาน้ำแข็ง',style_tag:'cold',gender_hint:'male'},{id:6,name_th:'นักรบไฟแดง',style_tag:'fierce',gender_hint:'male'},{id:13,name_th:'ซนแสบ',style_tag:'playful',gender_hint:'male'},{id:17,name_th:'เงาสีม่วง',style_tag:'mysterious',gender_hint:'any'},{id:40,name_th:'จอมมืด',style_tag:'shadow',gender_hint:'male'},{id:42,name_th:'ผู้สืบทอดเงา',style_tag:'shadow',gender_hint:'any'}];
+const FB_HAIRS=[{id:1,name_th:'ทรงสั้นดำเรียบ',length_tag:'short',color_tag:'black'},{id:2,name_th:'ทรงสั้นสีเงิน',length_tag:'short',color_tag:'silver'},{id:5,name_th:'ทรงสั้นขาวหิมะ',length_tag:'short',color_tag:'white'},{id:11,name_th:'ทรงกลางดำ',length_tag:'medium',color_tag:'black'},{id:21,name_th:'ทรงยาวดำไหล',length_tag:'long',color_tag:'black'},{id:47,name_th:'ผมแดงนีออน',length_tag:'medium',color_tag:'neon_red'}];
+
+/* ── INIT ── */
+(async function(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='index.html';return;}
+  const{data:ex}=await sb.from('characters').select('id').eq('user_id',session.user.id).maybeSingle();
+  if(ex){window.location.href='hub.html';return;}
+  await loadAll();
+})();
+</script>
+</body>
+</html>
