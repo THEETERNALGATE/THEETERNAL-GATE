@@ -735,44 +735,45 @@ async function generatePreview(){
   isGenerating=true;
   document.getElementById('regenBtn').disabled=true;
 
-  const imgEl=document.getElementById('previewImg');
-  const loadEl=document.getElementById('aiLoading');
+  const imgEl  = document.getElementById('previewImg');
+  const loadEl = document.getElementById('aiLoading');
   imgEl.classList.remove('loaded'); imgEl.style.display='none';
   loadEl.classList.remove('hidden');
   document.getElementById('aiStatus').textContent='กำลังสร้างรูปตัวละคร...';
   startNarratorLoop(); startProgress();
 
   try{
-    // เรียก Edge Function — key อยู่ใน Supabase server ไม่มีใครเห็น
-    const { data, error } = await sb.functions.invoke('generate-image', {
-      body: {
-        prompt:   buildPrompt(),
-        negative: buildNegative()
-      }
-    });
+    // ── Pollinations.ai — ฟรี 100% ไม่ต้อง token ────────────
+    const seed = Math.floor(Math.random()*999999);
+    const url  = 'https://image.pollinations.ai/prompt/'
+               + encodeURIComponent(buildPrompt())
+               + '?width=512&height=768'
+               + '&model=flux'
+               + '&seed=' + seed
+               + '&nologo=true';
 
-    if(error) throw new Error(error.message || 'Edge Function error');
-    if(!data?.image) throw new Error('ไม่ได้รับรูปกลับมา');
+    await new Promise((resolve, reject)=>{
+      const timeout = setTimeout(()=> reject(new Error('หมดเวลา กด Regenerate ใหม่')), 90000);
+      imgEl.addEventListener('load', ()=>{
+        clearTimeout(timeout);
+        imgEl.classList.add('loaded');
+        S.previewImageUrl = url;
+        resolve();
+      }, {once:true});
+      imgEl.addEventListener('error', ()=>{
+        clearTimeout(timeout);
+        reject(new Error('โหลดรูปไม่ได้ กด Regenerate'));
+      }, {once:true});
+      imgEl.src = url;
+      imgEl.style.display = 'block';
+    });
 
     finishProgress(); clearInterval(narratorTimer);
     loadEl.classList.add('hidden');
-
-    // base64 → blob URL (รองรับทั้ง jpeg และ png จาก HF)
-    const mimeType = data.contentType || 'image/jpeg';
-    const byteStr  = atob(data.image);
-    const ab       = new ArrayBuffer(byteStr.length);
-    const ia       = new Uint8Array(ab);
-    for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
-    const blob = new Blob([ab], {type: mimeType});
-    const url  = URL.createObjectURL(blob);
-
-    imgEl.src=url; imgEl.style.display='block';
-    imgEl.onload=()=>imgEl.classList.add('loaded');
     document.getElementById('aiStatus').textContent='[ OK ] สร้างรูปสำเร็จ!';
-    S.previewImageUrl=url;
 
   }catch(e){
-    console.error('Generate error:',e);
+    console.error('Generate error:', e);
     finishProgress(); clearInterval(narratorTimer);
     loadEl.classList.add('hidden');
     document.getElementById('aiStatus').textContent='[ ERROR ] '+e.message;
