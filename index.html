@@ -3,17 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>THE ETERNAL GATE — Hunter Registration</title>
+<title>NEON DESTINY — Hunter Registration</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --neon-blue:    #0099bb;
-  --neon-red:     #cc0033;
-  --dark-base:    #020408;
-  --text-primary: #8ab8cc;
-  --text-dim:     #2e5060;
+  --neon-blue:    #00ccff;
+  --neon-red:     #ff0044;
+  --neon-purple:  #aa44ff;
+  --dark-base:    #010101;
+  --dark-panel:   #0a0f18;
+  --text-primary: #eef5ff;
+  --text-dim:     #4c6a7c;
   --font-display: 'Saira Condensed', sans-serif;
   --font-mono:    'Share Tech Mono', monospace;
   --font-thai:    'Noto Sans Thai', sans-serif;
@@ -33,276 +35,327 @@ body {
   font-family: var(--font-display), var(--font-thai), sans-serif;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
 }
 
-/* ─── BACKGROUND — static เท่านั้น ─── */
+/* ========== DYNAMIC BACKGROUND ========== */
 .bg-layer {
   position: fixed; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,60,90,0.3) 0%, transparent 70%),
-    var(--dark-base);
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,80,120,0.4) 0%, transparent 70%),
+              radial-gradient(ellipse 40% 40% at 80% 90%, rgba(170,68,255,0.1) 0%, transparent 60%),
+              var(--dark-base);
 }
 
-/* Scanlines — static ไม่ animate */
+/* moving scanlines */
 .scanlines {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background: repeating-linear-gradient(
     0deg,
-    transparent, transparent 3px,
-    rgba(0,153,187,0.007) 3px, rgba(0,153,187,0.007) 4px
+    transparent, transparent 2px,
+    rgba(0,204,255,0.02) 2px,
+    rgba(0,204,255,0.02) 4px
   );
+  animation: scanMove 12s linear infinite;
+  will-change: background-position;
+}
+@keyframes scanMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200px; }
 }
 
-/* Corners */
+/* glitch overlay (random) */
+.glitch-overlay {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  background: transparent;
+  mix-blend-mode: overlay;
+  opacity: 0;
+  animation: glitchFlash 8s infinite steps(1);
+}
+@keyframes glitchFlash {
+  0%, 100% { opacity: 0; background: transparent; }
+  2% { opacity: 0.12; background: rgba(255,0,68,0.03); }
+  4% { opacity: 0.05; background: rgba(0,204,255,0.02); }
+  90% { opacity: 0; }
+}
+
+/* corner neon */
 .corner {
-  position: fixed; z-index: 2; pointer-events: none;
-  width: 44px; height: 44px;
-  border-color: rgba(0,153,187,0.16);
+  position: fixed; z-index: 3; pointer-events: none;
+  width: 50px; height: 50px;
+  border-color: rgba(0,204,255,0.25);
   border-style: solid;
+  transition: border-color 0.3s;
 }
-.corner-tl { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
-.corner-tr { top: 16px; right: 16px; border-width: 1px 1px 0 0; }
-.corner-bl { bottom: 16px; left: 16px; border-width: 0 0 1px 1px; }
-.corner-br { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
+.corner-tl { top: 18px; left: 18px; border-width: 2px 0 0 2px; }
+.corner-tr { top: 18px; right: 18px; border-width: 2px 2px 0 0; }
+.corner-bl { bottom: 18px; left: 18px; border-width: 0 0 2px 2px; }
+.corner-br { bottom: 18px; right: 18px; border-width: 0 2px 2px 0; }
+.corner:hover { border-color: rgba(0,204,255,0.7); }
 
-/* Particles */
-.particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+/* particles dynamic */
+.particles {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+}
 .particle {
-  position: absolute; width: 1px; height: 1px;
-  background: var(--neon-blue); border-radius: 50%; opacity: 0;
-  animation: float-up var(--dur,7s) var(--delay,0s) ease-in infinite;
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--neon-blue);
+  border-radius: 50%;
+  opacity: 0;
+  animation: floatUp var(--dur,8s) var(--delay,0s) ease-in infinite;
+  box-shadow: 0 0 4px var(--neon-blue);
   will-change: transform, opacity;
 }
-@keyframes float-up {
-  0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
-  15%  { opacity: 0.3; }
-  85%  { opacity: 0.08; }
-  100% { transform: translateY(-5vh) translateX(var(--drift,15px)); opacity: 0; }
+@keyframes floatUp {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  15% { opacity: 0.6; }
+  85% { opacity: 0.2; }
+  100% { transform: translateY(-10vh) translateX(var(--drift,20px)); opacity: 0; }
 }
 
-/* ─── LAYOUT ─── */
+/* ========== MAIN LAYOUT ========== */
 .page {
   position: relative; z-index: 10;
   min-height: 100vh; min-height: 100dvh;
   display: flex; align-items: center; justify-content: center;
-  padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+  padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px);
   overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 
-/* ─── PANEL ─── */
+/* SYSTEM PANEL — glass + neon border */
 .system-panel {
-  width: 100%; max-width: 460px;
-  max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
-  background: rgba(4,11,20,0.97);
-  border: 1px solid rgba(0,153,187,0.16);
-  box-shadow: 0 0 20px rgba(0,153,187,0.04), inset 0 1px 0 rgba(0,153,187,0.06);
-  animation: panel-appear 0.5s cubic-bezier(0.16,1,0.3,1) both;
-  will-change: transform, opacity;
+  width: 100%; max-width: 500px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: rgba(5,12,22,0.95);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(0,204,255,0.2);
+  box-shadow: 0 0 30px rgba(0,204,255,0.08), inset 0 1px 0 rgba(0,204,255,0.08);
+  animation: panelAppear 0.6s cubic-bezier(0.2,0.9,0.3,1.1) both;
+  border-radius: 0;
 }
-@keyframes panel-appear {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes panelAppear {
+  from { opacity: 0; transform: translateY(25px) scale(0.96); filter: blur(2px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 .panel-header {
-  padding: 0 20px; height: 42px;
+  padding: 0 22px; height: 48px;
   display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 1px solid rgba(0,153,187,0.1);
-  background: rgba(0,153,187,0.02);
+  border-bottom: 1px solid rgba(0,204,255,0.12);
+  background: rgba(0,204,255,0.02);
   position: sticky; top: 0; z-index: 5;
 }
 .panel-header-title {
   font-family: var(--font-mono);
-  font-size: 9px; letter-spacing: 0.16em;
-  color: var(--text-dim); text-transform: uppercase;
+  font-size: 10px; letter-spacing: 0.22em;
+  color: var(--text-dim);
+  text-transform: uppercase;
 }
-.panel-header-dots { display: flex; gap: 6px; }
-.dot { width: 7px; height: 7px; border-radius: 50%; }
-.dot-red  { background: rgba(204,0,51,0.6); }
-.dot-gold { background: rgba(184,154,0,0.6); }
-.dot-blue { background: rgba(0,153,187,0.7); animation: pulse-dot 2.5s ease-in-out infinite; }
-@keyframes pulse-dot { 0%,100%{opacity:.7} 50%{opacity:.25} }
+.panel-header-dots { display: flex; gap: 8px; }
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  transition: all 0.2s;
+}
+.dot-red  { background: #ff3366; box-shadow: 0 0 5px #ff3366; animation: pulseRed 2s infinite; }
+.dot-gold { background: #ffcc44; box-shadow: 0 0 5px #ffcc44; }
+.dot-blue { background: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue); animation: pulseBlue 1.8s infinite; }
+@keyframes pulseRed { 0%,100%{opacity:0.7} 50%{opacity:0.2} }
+@keyframes pulseBlue { 0%,100%{opacity:0.9} 50%{opacity:0.3} }
 
-.panel-body { padding: 28px 24px 32px; }
+.panel-body { padding: 32px 28px 38px; }
 
-/* ─── TITLE ─── */
+/* system alert */
 .system-alert {
   font-family: var(--font-mono); font-size: 9px;
   color: var(--neon-blue); letter-spacing: 0.2em;
-  text-transform: uppercase; margin-bottom: 8px; opacity: 0.6;
-  animation: blink-text 3s step-end infinite;
+  text-transform: uppercase; margin-bottom: 12px;
+  opacity: 0.7;
+  animation: pulseText 3s infinite;
 }
-@keyframes blink-text { 0%,100%{opacity:.6} 50%{opacity:.15} }
+@keyframes pulseText { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
 .game-title {
   font-family: var(--font-display); font-weight: 900;
-  font-size: clamp(26px, 7vw, 46px);
-  letter-spacing: 0.04em; line-height: 1.02;
-  color: #cce4ee;
-  /* glow อ่อนมาก ชั้นเดียว */
-  text-shadow: 0 0 16px rgba(0,153,187,0.2);
-  margin-bottom: 4px;
+  font-size: clamp(32px, 8vw, 58px);
+  letter-spacing: 0.05em; line-height: 1.05;
+  background: linear-gradient(135deg, #fff, var(--neon-blue), #aa88ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 25px rgba(0,204,255,0.4);
+  margin-bottom: 6px;
 }
 
 .game-subtitle {
   font-family: var(--font-display); font-weight: 300;
-  font-size: 10px; letter-spacing: 0.26em;
-  color: var(--text-dim); text-transform: uppercase; margin-bottom: 28px;
+  font-size: 11px; letter-spacing: 0.3em;
+  color: var(--text-dim); text-transform: uppercase;
+  margin-bottom: 32px;
 }
 
-/* ─── TABS ─── */
+/* TABS */
 .tabs {
   display: grid; grid-template-columns: 1fr 1fr;
-  border: 1px solid rgba(0,153,187,0.12);
-  margin-bottom: 20px; overflow: hidden;
+  border: 1px solid rgba(0,204,255,0.15);
+  margin-bottom: 28px;
+  overflow: hidden;
 }
 .tab-btn {
-  padding: 12px; background: transparent; border: none; cursor: pointer;
-  font-family: var(--font-display); font-weight: 600;
-  font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text-dim); transition: color 0.2s, background 0.2s;
-  position: relative; min-height: 48px;
+  padding: 14px; background: transparent; border: none;
+  cursor: pointer;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim);
+  transition: all 0.25s;
+  position: relative;
 }
-.tab-btn:first-child { border-right: 1px solid rgba(0,153,187,0.12); }
+.tab-btn:first-child { border-right: 1px solid rgba(0,204,255,0.15); }
 .tab-btn.active {
-  color: var(--neon-blue); background: rgba(0,153,187,0.05);
+  color: var(--neon-blue);
+  background: rgba(0,204,255,0.05);
+  text-shadow: 0 0 6px var(--neon-blue);
 }
 .tab-btn.active::after {
   content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-  height: 1px; background: rgba(0,153,187,0.5);
+  height: 2px; background: var(--neon-blue);
+  box-shadow: 0 0 8px var(--neon-blue);
 }
-.tab-btn:active { background: rgba(0,153,187,0.08); }
+.tab-btn:active { background: rgba(0,204,255,0.1); }
 
-/* ─── FORM ─── */
+/* FORMS */
 .form-section { display: none; }
-.form-section.active { display: block; animation: fade-in 0.2s ease; }
-@keyframes fade-in { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.form-section.active { display: block; animation: fadeSlide 0.25s ease; }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-.field { margin-bottom: 14px; }
+.field { margin-bottom: 18px; }
 .field-label {
   display: block; font-family: var(--font-mono);
-  font-size: 9px; letter-spacing: 0.16em;
-  color: var(--text-dim); text-transform: uppercase; margin-bottom: 7px;
+  font-size: 9px; letter-spacing: 0.2em;
+  color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;
 }
 
 .field-input {
-  width: 100%; padding: 13px 15px;
-  background: rgba(0,153,187,0.025);
-  border: 1px solid rgba(0,153,187,0.13);
+  width: 100%; padding: 14px 16px;
+  background: rgba(0,204,255,0.02);
+  border: 1px solid rgba(0,204,255,0.18);
   color: var(--text-primary);
   font-family: var(--font-mono); font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s;
+  outline: none; transition: all 0.2s;
   -webkit-appearance: none; border-radius: 0;
 }
-.field-input::placeholder { color: rgba(46,80,96,0.55); }
 .field-input:focus {
-  border-color: rgba(0,153,187,0.4);
-  background: rgba(0,153,187,0.045);
+  border-color: rgba(0,204,255,0.6);
+  background: rgba(0,204,255,0.05);
+  box-shadow: 0 0 12px rgba(0,204,255,0.1);
 }
+.field-input::placeholder { color: rgba(76,106,124,0.6); }
 
-/* ─── BUTTON ─── */
+/* BUTTON */
 .btn-primary {
-  width: 100%; padding: 15px; margin-top: 8px;
-  background: transparent;
-  border: 1px solid rgba(0,153,187,0.4);
+  width: 100%; padding: 16px; margin-top: 12px;
+  background: linear-gradient(135deg, transparent, rgba(0,204,255,0.05));
+  border: 1px solid rgba(0,204,255,0.5);
   color: var(--neon-blue);
   font-family: var(--font-display); font-weight: 700;
-  font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase;
-  cursor: pointer; min-height: 50px;
-  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  font-size: 14px; letter-spacing: 0.22em; text-transform: uppercase;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: all 0.3s;
 }
+.btn-primary::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,204,255,0.2), transparent);
+  transition: left 0.5s;
+}
+.btn-primary:hover::before { left: 100%; }
 .btn-primary:hover, .btn-primary:active {
-  background: rgba(0,153,187,0.1);
-  border-color: rgba(0,153,187,0.6); color: #b8dce8;
+  background: rgba(0,204,255,0.12);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 20px rgba(0,204,255,0.3);
+  color: #fff;
 }
-.btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ─── STATUS ─── */
+/* STATUS MESSAGES */
 .status-msg {
-  margin-top: 12px; padding: 10px 13px;
+  margin-top: 16px; padding: 12px 16px;
   font-family: var(--font-mono); font-size: 11px;
-  letter-spacing: 0.04em; display: none;
-  animation: fade-in 0.2s ease; word-break: break-word;
+  letter-spacing: 0.06em; display: none;
+  animation: fadeSlide 0.2s;
+  border-left: 3px solid;
 }
-.status-msg.error   { display:block; border:1px solid rgba(204,0,51,0.22); color:#bb4455; background:rgba(204,0,51,0.035); }
-.status-msg.success { display:block; border:1px solid rgba(0,153,187,0.2); color:var(--neon-blue); background:rgba(0,153,187,0.035); }
-.status-msg.loading { display:block; border:1px solid rgba(0,153,187,0.13); color:var(--text-dim); background:rgba(0,153,187,0.02); }
+.status-msg.error   { display: block; border-left-color: var(--neon-red); background: rgba(255,0,68,0.05); color: #ff88aa; }
+.status-msg.success { display: block; border-left-color: var(--neon-blue); background: rgba(0,204,255,0.05); color: var(--neon-blue); }
+.status-msg.loading { display: block; border-left-color: var(--text-dim); background: rgba(0,204,255,0.02); color: var(--text-dim); }
 
 .system-line {
-  margin-top: 20px; font-family: var(--font-mono);
-  font-size: 9px; letter-spacing: 0.1em; color: var(--text-dim);
-  display: flex; align-items: center; gap: 8px;
+  margin-top: 26px; font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.12em; color: var(--text-dim);
+  display: flex; align-items: center; gap: 10px;
 }
 .system-line::before {
-  content: ''; display: inline-block;
-  width: 16px; height: 1px; background: var(--text-dim); flex-shrink: 0;
+  content: ''; display: inline-block; width: 28px; height: 1px;
+  background: var(--text-dim); flex-shrink: 0;
 }
 
-/* ─── SPINNER ─── */
+/* SPINNER */
 .spinner {
-  display: inline-block; width: 11px; height: 11px;
-  border: 1px solid rgba(0,153,187,0.2);
-  border-top-color: var(--neon-blue); border-radius: 50%;
+  display: inline-block; width: 12px; height: 12px;
+  border: 1px solid rgba(0,204,255,0.3);
+  border-top-color: var(--neon-blue);
+  border-radius: 50%;
   animation: spin 0.7s linear infinite;
-  vertical-align: middle; margin-right: 8px; will-change: transform;
+  vertical-align: middle; margin-right: 8px;
 }
 @keyframes spin { to{transform:rotate(360deg)} }
 
-/* ─── AWAKENING OVERLAY ─── */
+/* AWAKENING OVERLAY (DRAMATIC) */
 .awakening-overlay {
   position: fixed; inset: 0; z-index: 1000;
-  background: var(--dark-base);
+  background: radial-gradient(ellipse at center, #010105 0%, #000000 100%);
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 16px;
-  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  align-items: center; justify-content: center; gap: 20px;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s;
 }
 .awakening-overlay.show { opacity: 1; pointer-events: all; }
 .awakening-text {
   font-family: var(--font-display); font-weight: 900;
-  font-size: clamp(14px, 4vw, 22px); letter-spacing: 0.18em;
+  font-size: clamp(16px, 5vw, 28px); letter-spacing: 0.22em;
   color: var(--neon-blue); text-transform: uppercase;
-  text-shadow: 0 0 12px rgba(0,153,187,0.25);
+  text-shadow: 0 0 20px var(--neon-blue);
+  animation: flicker 2s infinite steps(2);
 }
+@keyframes flicker { 0%,100%{opacity:1} 92%{opacity:0.4} 95%{opacity:0.8} 98%{opacity:0.2} }
 .awakening-sub {
-  font-family: var(--font-mono); font-size: 10px;
-  letter-spacing: 0.22em; color: var(--text-dim);
-  animation: blink-text 2s step-end infinite;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.3em;
+  color: var(--text-dim);
 }
 .awakening-bar-wrap {
-  width: min(240px, 70vw); height: 1px;
-  background: rgba(0,153,187,0.1); overflow: hidden;
+  width: min(280px, 70vw); height: 2px;
+  background: rgba(0,204,255,0.15); overflow: hidden;
+  box-shadow: 0 0 4px rgba(0,204,255,0.3);
 }
 .awakening-bar {
   height: 100%;
-  background: linear-gradient(90deg, transparent, var(--neon-blue));
-  width: 0%; will-change: width;
+  background: linear-gradient(90deg, var(--neon-blue), #ffffff);
+  width: 0%;
+  box-shadow: 0 0 6px var(--neon-blue);
+  will-change: width;
 }
-@keyframes bar-fill { to{width:100%} }
 
-/* ─── RESPONSIVE ─── */
-@media (max-width: 380px) {
-  .panel-body { padding: 18px 13px 24px; }
-  .game-title { font-size: 22px; }
-  .corner { width: 30px; height: 30px; }
-}
+/* Responsive */
 @media (max-width: 480px) {
-  .panel-body { padding: 22px 15px 26px; }
-  .corner { width: 36px; height: 36px; }
+  .panel-body { padding: 24px 18px 30px; }
+  .game-title { font-size: 32px; }
+  .corner { width: 32px; height: 32px; }
 }
-@media (max-height: 500px) and (orientation: landscape) {
-  .page { align-items: flex-start; padding-top: 6px; }
+@media (max-height: 550px) and (orientation: landscape) {
+  .page { align-items: flex-start; padding-top: 8px; }
   .panel-body { padding: 12px 20px 16px; }
-  .game-title { font-size: 20px; }
+  .game-title { font-size: 24px; margin-bottom: 2px; }
   .game-subtitle { margin-bottom: 12px; }
-  .field { margin-bottom: 8px; }
-  .corner { display: none; }
-}
-@media (min-width: 768px) {
-  .panel-body { padding: 36px 32px 40px; }
-  .game-title { font-size: 46px; }
 }
 </style>
 </head>
@@ -310,6 +363,7 @@ body {
 
 <div class="bg-layer"></div>
 <div class="scanlines"></div>
+<div class="glitch-overlay"></div>
 <div class="particles" id="particles"></div>
 <div class="corner corner-tl"></div>
 <div class="corner corner-tr"></div>
@@ -317,9 +371,9 @@ body {
 <div class="corner corner-br"></div>
 
 <div class="awakening-overlay" id="awakeningOverlay">
-  <div class="awakening-text">[ GATE OPENING ]</div>
+  <div class="awakening-text">[ AWAKENING SEQUENCE ]</div>
   <div class="awakening-bar-wrap"><div class="awakening-bar" id="awakeningBar"></div></div>
-  <div class="awakening-sub">กำลังโหลดข้อมูลฮันเตอร์...</div>
+  <div class="awakening-sub">กำลังเชื่อมต่อกับระบบฮันเตอร์...</div>
 </div>
 
 <div class="page">
@@ -336,8 +390,8 @@ body {
 
     <div class="panel-body">
       <div class="system-alert">[ SYSTEM NOTICE ] — New Gate detected</div>
-      <div class="game-title">THE ETERNAL<br>GATE</div>
-      <div class="game-subtitle">Hunter System · Gate Classification</div>
+      <div class="game-title">NEON<br>DESTINY</div>
+      <div class="game-subtitle">Solo Leveling · Hunter System</div>
 
       <div class="tabs">
         <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">เข้าสู่ระบบ</button>
@@ -394,115 +448,205 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// Supabase config
 const SUPABASE_URL  = 'https://ejurtaivfrozzhassvgf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXJ0YWl2ZnJvenpoYXNzdmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTM5MTYsImV4cCI6MjA5MDMyOTkxNn0.m9LaUaK3eRwY_TxdI0aCrnEASsqE4WdIioALfYVjVI0';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-/* Particles — 8 ตัว ไม่มี box-shadow */
-requestAnimationFrame(() => {
-  const c = document.getElementById('particles');
-  const n = window.innerWidth < 480 ? 6 : 8;
-  const f = document.createDocumentFragment();
-  for (let i = 0; i < n; i++) {
+// ตรวจสอบว่าถ้ามีตัวแปร supabase ใน window แล้ว ไม่ต้องสร้างซ้ำ
+if (!window._supabaseClient) {
+  window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+}
+const supabase = window._supabaseClient;
+
+// Particles animation (เพิ่มจำนวนขึ้นเล็กน้อย)
+(function initParticles() {
+  const container = document.getElementById('particles');
+  const count = Math.min(16, window.innerWidth < 600 ? 10 : 16);
+  for (let i = 0; i < count; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    p.style.cssText = `left:${Math.random()*100}%;--dur:${6+Math.random()*6}s;--delay:${-Math.random()*10}s;--drift:${(Math.random()-.5)*40}px`;
-    f.appendChild(p);
+    const dur = 6 + Math.random() * 8;
+    const delay = -Math.random() * 12;
+    const drift = (Math.random() - 0.5) * 70;
+    p.style.cssText = `left:${Math.random() * 100}%;--dur:${dur}s;--delay:${delay}s;--drift:${drift}px`;
+    container.appendChild(p);
   }
-  c.appendChild(f);
-});
+})();
 
+// ========== GLOBAL FUNCTIONS ==========
 function switchTab(tab) {
-  ['Login','Register'].forEach(t => {
-    const a = t.toLowerCase() === tab;
-    document.getElementById('tab'+t).classList.toggle('active', a);
-    document.getElementById('form'+t).classList.toggle('active', a);
-  });
+  const isLogin = (tab === 'login');
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('formLogin').classList.toggle('active', isLogin);
+  document.getElementById('formRegister').classList.toggle('active', !isLogin);
   clearStatus();
 }
 
 function clearStatus() {
   ['loginStatus','registerStatus'].forEach(id => {
     const el = document.getElementById(id);
-    el.className = 'status-msg'; el.innerHTML = '';
+    if (el) { el.className = 'status-msg'; el.innerHTML = ''; }
   });
 }
 
 function validateUsername(input) {
-  input.value = input.value.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g,'');
+  input.value = input.value.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '');
 }
 
 function setStatus(id, type, msg) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.className = `status-msg ${type}`;
-  el.innerHTML = type === 'loading'
-    ? `<span class="spinner"></span>${msg}`
-    : (type === 'error' ? '[ ERROR ] ' : '[ OK ] ') + msg;
+  if (type === 'loading') {
+    el.innerHTML = `<span class="spinner"></span>${msg}`;
+  } else {
+    const prefix = type === 'error' ? '[ ERROR ] ' : '[ OK ] ';
+    el.innerHTML = prefix + msg;
+  }
 }
 
-function setLoading(id, v) { document.getElementById(id).disabled = v; }
+function setLoading(btnId, isLoading) {
+  const btn = document.getElementById(btnId);
+  if (btn) btn.disabled = isLoading;
+}
 
+// ========== LOGIN ==========
 async function handleLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPassword').value;
-  if (!email || !pass) { setStatus('loginStatus','error','กรุณากรอกอีเมลและรหัสผ่าน'); return; }
-  setLoading('loginBtn',true);
-  setStatus('loginStatus','loading','กำลังตรวจสอบ Hunter ID...');
+  if (!email || !pass) {
+    setStatus('loginStatus', 'error', 'กรุณากรอกอีเมลและรหัสผ่าน');
+    return;
+  }
+  setLoading('loginBtn', true);
+  setStatus('loginStatus', 'loading', 'กำลังตรวจสอบ Hunter ID...');
+
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-  if (error) { setStatus('loginStatus','error',translateError(error.message)); setLoading('loginBtn',false); return; }
-  const { data: char } = await supabase.from('characters').select('id').eq('user_id',data.user.id).single();
-  triggerAwakening(() => { window.location.href = char ? 'hub.html' : 'create-character.html'; });
+  if (error) {
+    setStatus('loginStatus', 'error', translateError(error.message));
+    setLoading('loginBtn', false);
+    return;
+  }
+
+  // ตรวจสอบตัวละคร
+  const { data: char } = await supabase
+    .from('characters')
+    .select('id')
+    .eq('user_id', data.user.id)
+    .maybeSingle();
+
+  triggerAwakening(() => {
+    window.location.href = char ? 'hub.html' : 'create-character.html';
+  });
 }
 
+// ========== REGISTER ==========
 async function handleRegister() {
   const username = document.getElementById('regUsername').value.trim();
   const email    = document.getElementById('regEmail').value.trim();
   const pass     = document.getElementById('regPassword').value;
-  if (!username||!email||!pass) { setStatus('registerStatus','error','กรุณากรอกข้อมูลให้ครบ'); return; }
-  if (username.length < 3)      { setStatus('registerStatus','error','Codename ต้องมีอย่างน้อย 3 ตัวอักษร'); return; }
-  if (pass.length < 8)          { setStatus('registerStatus','error','Access Code ต้องมีอย่างน้อย 8 ตัวอักษร'); return; }
-  setLoading('registerBtn',true);
-  setStatus('registerStatus','loading','กำลังลงทะเบียนในระบบ Hunter Association...');
-  const { data: ex } = await supabase.from('profiles').select('username').eq('username',username).maybeSingle();
-  if (ex) { setStatus('registerStatus','error','Codename "'+username+'" ถูกใช้แล้ว'); setLoading('registerBtn',false); return; }
-  const { data, error } = await supabase.auth.signUp({ email, password: pass, options:{ data:{ username, display_name: username } } });
-  if (error) { setStatus('registerStatus','error',translateError(error.message)); setLoading('registerBtn',false); return; }
-  await new Promise(r => setTimeout(r,800));
-  await supabase.from('profiles').update({ username }).eq('id',data.user.id);
-  setStatus('registerStatus','success','ยืนยันอีเมลของคุณเพื่อเริ่ม Awakening!');
-  setLoading('registerBtn',false);
-  if (data.session) triggerAwakening(() => { window.location.href = 'create-character.html'; });
+
+  if (!username || !email || !pass) {
+    setStatus('registerStatus', 'error', 'กรุณากรอกข้อมูลให้ครบ');
+    return;
+  }
+  if (username.length < 3) {
+    setStatus('registerStatus', 'error', 'Codename ต้องมีอย่างน้อย 3 ตัวอักษร');
+    return;
+  }
+  if (pass.length < 8) {
+    setStatus('registerStatus', 'error', 'Access Code ต้องมีอย่างน้อย 8 ตัวอักษร');
+    return;
+  }
+
+  setLoading('registerBtn', true);
+  setStatus('registerStatus', 'loading', 'กำลังลงทะเบียนในระบบ Hunter Association...');
+
+  // ตรวจสอบ username ซ้ำ
+  const { data: existing } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('username', username)
+    .maybeSingle();
+  if (existing) {
+    setStatus('registerStatus', 'error', 'Codename "' + username + '" ถูกใช้แล้ว');
+    setLoading('registerBtn', false);
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: pass,
+    options: { data: { username, display_name: username } }
+  });
+
+  if (error) {
+    setStatus('registerStatus', 'error', translateError(error.message));
+    setLoading('registerBtn', false);
+    return;
+  }
+
+  // รอ trigger profile สร้างแล้วอัปเดต username
+  await new Promise(r => setTimeout(r, 800));
+  await supabase.from('profiles').update({ username }).eq('id', data.user.id);
+
+  setStatus('registerStatus', 'success', 'ยืนยันอีเมลของคุณเพื่อเริ่ม Awakening!');
+  setLoading('registerBtn', false);
+
+  if (data.session) {
+    triggerAwakening(() => { window.location.href = 'create-character.html'; });
+  }
 }
 
-function triggerAwakening(cb) {
+// ========== AWAKENING ANIMATION ==========
+function triggerAwakening(callback) {
   const overlay = document.getElementById('awakeningOverlay');
-  const bar     = document.getElementById('awakeningBar');
+  const bar = document.getElementById('awakeningBar');
   overlay.classList.add('show');
-  bar.style.animation = 'none'; bar.offsetHeight;
-  bar.style.animation = 'bar-fill 1.6s cubic-bezier(0.16,1,0.3,1) forwards';
-  setTimeout(cb, 1800);
+  bar.style.animation = 'none';
+  bar.offsetHeight; // force reflow
+  bar.style.animation = 'bar-fill 1.8s cubic-bezier(0.2,0.9,0.4,1.1) forwards';
+  setTimeout(() => {
+    callback();
+  }, 2000);
 }
 
 function translateError(msg) {
-  if (msg.includes('Invalid login'))       return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+  if (msg.includes('Invalid login')) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
   if (msg.includes('Email not confirmed')) return 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
   if (msg.includes('already registered')) return 'อีเมลนี้ถูกลงทะเบียนแล้ว';
-  if (msg.includes('rate limit'))          return 'ลองใหม่อีกครั้งใน 1 นาที';
-  if (msg.includes('Network'))             return 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
+  if (msg.includes('rate limit')) return 'ลองใหม่อีกครั้งใน 1 นาที';
+  if (msg.includes('Network')) return 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
   return msg;
 }
 
+// ========== SESSION CHECK (Redirect if already logged in) ==========
 (async function checkSession() {
-  const { data:{ session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   if (!session) return;
-  const { data: char } = await supabase.from('characters').select('id').eq('user_id',session.user.id).single();
+  const { data: char } = await supabase
+    .from('characters')
+    .select('id')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+  // ไปที่ hub หรือ create-character ตามสถานะ
   window.location.href = char ? 'hub.html' : 'create-character.html';
 })();
 
-document.addEventListener('keydown', e => {
+// ========== KEYBOARD SHORTCUT ==========
+document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter') return;
-  document.getElementById('formLogin').classList.contains('active') ? handleLogin() : handleRegister();
+  const activeForm = document.getElementById('formLogin').classList.contains('active') ? 'login' : 'register';
+  if (activeForm === 'login') handleLogin();
+  else handleRegister();
 });
+
+// ทำให้ฟังก์ชัน global เพื่อความปลอดภัย (แต่ onclick ก็ใช้งานได้แล้ว)
+window.switchTab = switchTab;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.validateUsername = validateUsername;
 </script>
 </body>
 </html>
