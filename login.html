@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>THE ETERNAL GATE — Hunter Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;400;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --neon-blue: #00ccff;
+  --neon-red: #ff0044;
+  --neon-gold: #ffcc44;
+  --dark-bg: #010105;
+  --panel-bg: rgba(5, 12, 25, 0.94);
+  --text-main: #eef5ff;
+  --text-dim: #5a7a9c;
+  --border-glow: rgba(0, 204, 255, 0.3);
+  --font-title: 'Saira Condensed', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-th: 'Noto Sans Thai', sans-serif;
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--text-main);
+  font-family: var(--font-title), var(--font-th), sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background effects */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(0, 80, 130, 0.3) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 40% at 90% 80%, rgba(170, 0, 255, 0.1) 0%, transparent 70%),
+              #010105;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 204, 255, 0.02) 2px, rgba(0, 204, 255, 0.02) 4px);
+  animation: scanMove 10s linear infinite;
+}
+
+@keyframes scanMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200px; }
+}
+
+.glitch {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: transparent;
+  animation: glitchFlash 12s infinite steps(1);
+}
+
+@keyframes glitchFlash {
+  0%, 100% { background: transparent; }
+  1% { background: rgba(255, 0, 68, 0.02); }
+  3% { background: rgba(0, 204, 255, 0.01); }
+  95% { background: transparent; }
+}
+
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: var(--neon-blue);
+  border-radius: 50%;
+  opacity: 0;
+  animation: floatUp var(--dur, 10s) var(--delay, 0s) ease-in infinite;
+  box-shadow: 0 0 3px var(--neon-blue);
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  15% { opacity: 0.5; }
+  85% { opacity: 0.2; }
+  100% { transform: translateY(-10vh) translateX(var(--drift, 30px)); opacity: 0; }
+}
+
+/* Corner decorations */
+.corner {
+  position: fixed;
+  z-index: 5;
+  width: 48px;
+  height: 48px;
+  border-color: rgba(0, 204, 255, 0.4);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.c-tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+.c-tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+.c-bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+.c-br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+/* Login Panel */
+.login-container {
+  width: 100%;
+  max-width: 460px;
+  animation: panelAppear 0.6s ease-out;
+}
+
+@keyframes panelAppear {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 40px rgba(0, 204, 255, 0.1), inset 0 1px 0 rgba(0, 204, 255, 0.05);
+}
+
+.panel-header {
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 204, 255, 0.15);
+  background: rgba(0, 204, 255, 0.02);
+}
+
+.panel-header-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.panel-header-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot-red { background: #ff3366; box-shadow: 0 0 5px #ff3366; animation: pulseRed 2s infinite; }
+.dot-gold { background: #ffcc44; box-shadow: 0 0 5px #ffcc44; }
+.dot-blue { background: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue); animation: pulseBlue 1.8s infinite; }
+
+@keyframes pulseRed { 0%,100%{ opacity:0.7 } 50%{ opacity:0.2 } }
+@keyframes pulseBlue { 0%,100%{ opacity:0.9 } 50%{ opacity:0.3 } }
+
+.panel-body {
+  padding: 36px 32px 44px;
+}
+
+.system-alert {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--neon-blue);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0.7;
+  animation: pulseText 3s infinite;
+}
+
+@keyframes pulseText {
+  0%,100%{ opacity:0.6; }
+  50%{ opacity:1; }
+}
+
+.game-title {
+  font-family: var(--font-title);
+  font-weight: 900;
+  font-size: 2.2rem;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #fff, var(--neon-blue), #aa88ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+  margin-bottom: 6px;
+}
+
+.game-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+
+.field {
+  margin-bottom: 22px;
+}
+
+.field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.field-input {
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(0, 204, 255, 0.03);
+  border: 1px solid rgba(0, 204, 255, 0.2);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.field-input:focus {
+  border-color: var(--neon-blue);
+  background: rgba(0, 204, 255, 0.06);
+  box-shadow: 0 0 12px rgba(0, 204, 255, 0.1);
+}
+
+.field-input::placeholder {
+  color: rgba(90, 122, 156, 0.5);
+  font-size: 13px;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 16px;
+  margin-top: 16px;
+  background: linear-gradient(135deg, transparent, rgba(0, 204, 255, 0.08));
+  border: 1px solid var(--neon-blue);
+  color: var(--neon-blue);
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.btn-login::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 204, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-login:hover::before {
+  left: 100%;
+}
+
+.btn-login:hover {
+  background: rgba(0, 204, 255, 0.15);
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+  color: #fff;
+}
+
+.btn-login:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-msg {
+  margin-top: 20px;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  display: none;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.status-msg.error {
+  display: block;
+  border-left: 3px solid var(--neon-red);
+  background: rgba(255, 0, 68, 0.05);
+  color: #ff88aa;
+}
+
+.status-msg.success {
+  display: block;
+  border-left: 3px solid var(--neon-blue);
+  background: rgba(0, 204, 255, 0.05);
+  color: var(--neon-blue);
+}
+
+.status-msg.loading {
+  display: block;
+  border-left: 3px solid var(--text-dim);
+  background: rgba(0, 204, 255, 0.02);
+  color: var(--text-dim);
+}
+
+.spinner {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 1px solid rgba(0, 204, 255, 0.3);
+  border-top-color: var(--neon-blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.back-link {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.back-link a {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-link a:hover {
+  color: var(--neon-blue);
+}
+
+.system-line {
+  margin-top: 28px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.system-line::before {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: var(--text-dim);
+}
+
+/* Awakening overlay (สำหรับ transition) */
+.awakening-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #010105;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.awakening-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.awakening-text {
+  font-family: var(--font-title);
+  font-weight: 900;
+  font-size: clamp(16px, 5vw, 26px);
+  letter-spacing: 0.22em;
+  color: var(--neon-blue);
+  text-transform: uppercase;
+  text-shadow: 0 0 20px var(--neon-blue);
+}
+
+.awakening-bar-wrap {
+  width: 260px;
+  height: 2px;
+  background: rgba(0, 204, 255, 0.15);
+  overflow: hidden;
+}
+
+.awakening-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-blue), #ffffff);
+  width: 0%;
+}
+
+.awakening-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+}
+
+@media (max-width: 500px) {
+  .panel-body { padding: 28px 22px 36px; }
+  .game-title { font-size: 1.8rem; }
+  .corner { width: 32px; height: 32px; }
+  .c-tl, .c-tr, .c-bl, .c-br { top: 12px; left: 12px; right: 12px; bottom: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="scanlines"></div>
+<div class="glitch"></div>
+<div class="particles" id="particles"></div>
+<div class="corner c-tl"></div>
+<div class="corner c-tr"></div>
+<div class="corner c-bl"></div>
+<div class="corner c-br"></div>
+
+<!-- Awakening transition -->
+<div class="awakening-overlay" id="awakeningOverlay">
+  <div class="awakening-text">[ SYSTEM ACCESS ]</div>
+  <div class="awakening-bar-wrap"><div class="awakening-bar" id="awakeningBar"></div></div>
+  <div class="awakening-sub">กำลังเชื่อมต่อกับ Hunter Association...</div>
+</div>
+
+<div class="login-container">
+  <div class="login-panel">
+    <div class="panel-header">
+      <span class="panel-header-title">SYSTEM // HUNTER AUTHENTICATION</span>
+      <div class="panel-header-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-gold"></div>
+        <div class="dot dot-blue"></div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="system-alert">[ GATE CONTROL ] — Authorization required</div>
+      <div class="game-title">THE ETERNAL GATE</div>
+      <div class="game-sub">HUNTER LOGIN · ACCESS GRANT</div>
+
+      <div class="field">
+        <label class="field-label" for="loginEmail">// HUNTER EMAIL</label>
+        <input class="field-input" type="email" id="loginEmail" placeholder="hunter@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label class="field-label" for="loginPassword">// ACCESS CODE</label>
+        <input class="field-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button class="btn-login" id="loginBtn">[ ENTER SYSTEM ]</button>
+      <div class="status-msg" id="loginStatus"></div>
+
+      <div class="back-link">
+        <a href="index.html">⌂ กลับสู่หน้าแรก</a>
+      </div>
+      <div class="system-line">Encrypted channel · TLS 1.3</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ========== SUPABASE CONFIG (ใช้ของโปรเจกต์คุณ) ==========
+const SUPABASE_URL = 'https://ejurtaivfrozzhassvgf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXJ0YWl2ZnJvenpoYXNzdmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTM5MTYsImV4cCI6MjA5MDMyOTkxNn0.m9LaUaK3eRwY_TxdI0aCrnEASsqE4WdIioALfYVjVI0';
+
+// ป้องกันการประกาศซ้ำ
+if (!window._supabaseClient) {
+  window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+}
+const supabase = window._supabaseClient;
+
+// ========== PARTICLES ==========
+(function initParticles() {
+  const container = document.getElementById('particles');
+  const count = Math.min(20, window.innerWidth < 700 ? 12 : 20);
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const dur = 5 + Math.random() * 10;
+    const delay = -Math.random() * 12;
+    const drift = (Math.random() - 0.5) * 70;
+    p.style.cssText = `left:${Math.random() * 100}%;--dur:${dur}s;--delay:${delay}s;--drift:${drift}px`;
+    container.appendChild(p);
+  }
+})();
+
+// ========== UI HELPERS ==========
+function setStatus(type, message) {
+  const el = document.getElementById('loginStatus');
+  el.className = `status-msg ${type}`;
+  if (type === 'loading') {
+    el.innerHTML = `<span class="spinner"></span>${message}`;
+  } else {
+    const prefix = type === 'error' ? '[ ACCESS DENIED ] ' : '[ ACCESS GRANTED ] ';
+    el.innerHTML = prefix + message;
+  }
+}
+
+function setLoading(loading) {
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = loading;
+}
+
+// ========== LOGIN FUNCTION ==========
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email || !password) {
+    setStatus('error', 'กรุณากรอกอีเมลและรหัสผ่าน');
+    return;
+  }
+
+  setLoading(true);
+  setStatus('loading', 'กำลังตรวจสอบข้อมูลฮันเตอร์...');
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      let errorMsg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      if (error.message.includes('Email not confirmed')) errorMsg = 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
+      if (error.message.includes('rate limit')) errorMsg = 'ลองใหม่อีกครั้งใน 1 นาที';
+      setStatus('error', errorMsg);
+      setLoading(false);
+      return;
+    }
+
+    // Login สำเร็จ
+    setStatus('success', 'ยืนยันตัวตนสำเร็จ กำลังโหลดข้อมูล...');
+
+    // ตรวจสอบว่ามีตัวละครหรือยัง
+    const { data: charData, error: charError } = await supabase
+      .from('characters')
+      .select('id')
+      .eq('user_id', data.user.id)
+      .maybeSingle();
+
+    // แสดง animation แล้ว redirect
+    triggerAwakening(() => {
+      if (charData && !charError) {
+        window.location.href = 'hub.html';
+      } else {
+        window.location.href = 'create-character.html';
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    setStatus('error', 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+    setLoading(false);
+  }
+}
+
+// ========== AWAKENING ANIMATION ==========
+function triggerAwakening(callback) {
+  const overlay = document.getElementById('awakeningOverlay');
+  const bar = document.getElementById('awakeningBar');
+  overlay.classList.add('show');
+  bar.style.animation = 'none';
+  bar.offsetHeight; // force reflow
+  bar.style.animation = 'bar-fill 1.8s cubic-bezier(0.2,0.9,0.4,1.1) forwards';
+  setTimeout(() => {
+    callback();
+  }, 1900);
+}
+
+// เพิ่ม keyframe แบบ dynamic (เพราะ style ไม่มี bar-fill)
+const styleSheet = document.createElement("style");
+styleSheet.textContent = `
+  @keyframes bar-fill {
+    to { width: 100%; }
+  }
+`;
+document.head.appendChild(styleSheet);
+
+// ========== EVENT LISTENERS ==========
+document.getElementById('loginBtn').addEventListener('click', handleLogin);
+
+// กด Enter
+document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('loginEmail').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ========== CHECK SESSION (ถ้า login อยู่แล้ว redirect) ==========
+(async function checkExistingSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    // มี session อยู่แล้ว ให้ไปต่อ
+    const { data: charData } = await supabase
+      .from('characters')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    window.location.href = charData ? 'hub.html' : 'create-character.html';
+  }
+})();
+</script>
+</body>
+</html>
