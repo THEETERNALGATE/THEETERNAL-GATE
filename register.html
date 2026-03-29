@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>THE ETERNAL GATE — Hunter Awakening</title>
+<title>THE ETERNAL GATE — Hunter Registration</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;400;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
@@ -214,7 +214,7 @@ body {
 .system-line { margin-top: 28px; font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.1em; color: var(--text-dim); display: flex; align-items: center; gap: 10px; }
 .system-line::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--text-dim); }
 
-/* Awakening Power Bar (Solo Leveling vibe) */
+/* Power bar for awakening */
 .power-section {
   margin: 20px 0 10px;
   padding: 12px;
@@ -300,14 +300,14 @@ body {
         </div>
       </div>
 
-      <!-- Awakening Power Bar (Solo Leveling style) -->
-      <div class="power-section" id="powerSection">
+      <!-- Awakening Power Bar -->
+      <div class="power-section">
         <div class="power-label">
           <span>AWAKENING POWER</span>
           <span id="powerPercent">0%</span>
         </div>
         <div class="power-bar-bg"><div class="power-bar" id="powerBar"></div></div>
-        <div class="power-text">[ SYSTEM: Awakening energy charging... ]</div>
+        <div class="power-text" id="powerMessage">[ SYSTEM: Awakening energy charging... ]</div>
       </div>
 
       <button class="btn-register" id="registerBtn">[ BEGIN AWAKENING ]</button>
@@ -324,7 +324,7 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Supabase config
+// ใช้ Supabase client แบบปลอดภัย ป้องกันการประกาศซ้ำ
 const SUPABASE_URL = 'https://ejurtaivfrozzhassvgf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXJ0YWl2ZnJvenpoYXNzdmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTM5MTYsImV4cCI6MjA5MDMyOTkxNn0.m9LaUaK3eRwY_TxdI0aCrnEASsqE4WdIioALfYVjVI0';
 
@@ -348,41 +348,43 @@ const supabase = window._supabaseClient;
   }
 })();
 
-// Dynamic power bar based on input completeness
+// Helper: อัปเดต Power Bar แบบ real-time
 function updatePowerBar() {
   const username = document.getElementById('regUsername').value.trim();
   const email = document.getElementById('regEmail').value.trim();
-  const pass = document.getElementById('regPassword').value;
+  const password = document.getElementById('regPassword').value;
   const confirm = document.getElementById('regConfirm').value;
   const pin = document.getElementById('regPin').value;
-  
+
   let percent = 0;
   if (username.length >= 3) percent += 20;
   if (email.includes('@') && email.includes('.')) percent += 20;
-  if (pass.length >= 8) percent += 20;
-  if (confirm.length >= 8 && pass === confirm) percent += 20;
+  if (password.length >= 8) percent += 20;
+  if (confirm.length >= 8 && password === confirm) percent += 20;
   if (pin.length === 6) percent += 20;
-  
-  document.getElementById('powerBar').style.width = percent + '%';
-  document.getElementById('powerPercent').innerText = percent + '%';
-  const powerText = document.querySelector('.power-text');
+
+  const powerBar = document.getElementById('powerBar');
+  const percentSpan = document.getElementById('powerPercent');
+  const msgSpan = document.getElementById('powerMessage');
+  powerBar.style.width = percent + '%';
+  percentSpan.innerText = percent + '%';
   if (percent === 100) {
-    powerText.innerHTML = '[ SYSTEM: Awakening energy full. Ready to become a Hunter. ]';
-    powerText.style.color = 'var(--neon-gold)';
+    msgSpan.innerHTML = '[ SYSTEM: Awakening energy full. Ready to become a Hunter. ]';
+    msgSpan.style.color = 'var(--neon-gold)';
   } else {
-    powerText.innerHTML = '[ SYSTEM: Awakening energy charging... ]';
-    powerText.style.color = 'var(--text-dim)';
+    msgSpan.innerHTML = '[ SYSTEM: Awakening energy charging... ]';
+    msgSpan.style.color = 'var(--neon-blue)';
   }
 }
 
-// Attach event listeners to update power bar
+// ผูก event กับทุกฟิลด์ที่เกี่ยวข้อง
 ['regUsername','regEmail','regPassword','regConfirm','regPin'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('input', updatePowerBar);
 });
 updatePowerBar();
 
-// Restrict PIN to digits only
+// จำกัด PIN ให้เป็นตัวเลขเท่านั้น
 document.getElementById('regPin').addEventListener('input', function(e) {
   this.value = this.value.replace(/[^0-9]/g, '').slice(0,6);
   updatePowerBar();
@@ -403,7 +405,7 @@ function setLoading(loading) {
   document.getElementById('registerBtn').disabled = loading;
 }
 
-// Register function
+// ฟังก์ชันสมัครสมาชิก
 async function handleRegister() {
   const username = document.getElementById('regUsername').value.trim();
   const email = document.getElementById('regEmail').value.trim();
@@ -411,12 +413,17 @@ async function handleRegister() {
   const confirm = document.getElementById('regConfirm').value;
   const pin = document.getElementById('regPin').value;
 
+  // validation
   if (!username || !email || !password || !confirm || !pin) {
     setStatus('error', 'กรุณากรอกข้อมูลให้ครบทุกช่อง');
     return;
   }
   if (username.length < 3) {
     setStatus('error', 'Username ต้องมีอย่างน้อย 3 ตัวอักษร');
+    return;
+  }
+  if (!email.includes('@') || !email.includes('.')) {
+    setStatus('error', 'กรุณากรอกอีเมลให้ถูกต้อง');
     return;
   }
   if (password.length < 8) {
@@ -435,7 +442,7 @@ async function handleRegister() {
   setLoading(true);
   setStatus('loading', 'กำลังทำการ Awakening...');
 
-  // Check username duplicate in profiles
+  // ตรวจสอบ username ซ้ำ
   const { data: existingUser } = await supabase
     .from('profiles')
     .select('username')
@@ -447,7 +454,7 @@ async function handleRegister() {
     return;
   }
 
-  // Sign up with metadata (store username, pin)
+  // สมัครสมาชิก
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -456,7 +463,6 @@ async function handleRegister() {
         username: username,
         display_name: username,
         transaction_pin: pin
-        // ไม่มี country, area, character name
       }
     }
   });
@@ -476,6 +482,7 @@ async function handleRegister() {
   }, 2000);
 }
 
+// ผูก event ปุ่มและกด Enter
 document.getElementById('registerBtn').addEventListener('click', handleRegister);
 document.querySelectorAll('#regPassword, #regConfirm, #regPin, #regEmail, #regUsername').forEach(input => {
   input.addEventListener('keypress', (e) => {
