@@ -88,8 +88,8 @@ body{min-height:100%;background:var(--base);color:var(--thi);font-family:'Saira 
 .cg3::-webkit-scrollbar{width:3px}.cg3::-webkit-scrollbar-thumb{background:rgba(0,200,255,.18)}
 .ccard{padding:9px 10px;cursor:pointer;background:rgba(0,200,255,.02);border:1px solid rgba(0,200,255,.07);transition:all .15s;display:flex;align-items:center;gap:7px;-webkit-user-select:none;user-select:none}
 .ccard:active{transform:scale(.97)}.ccard.sel{border-color:rgba(0,200,255,.35);background:rgba(0,200,255,.05)}
-/* country code box แทน flag emoji */
-.ccode{width:32px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:.04em;color:var(--nb);border:1px solid rgba(0,200,255,.2);background:rgba(0,200,255,.04)}
+/* flag emoji */
+.cflag{font-size:20px;line-height:1;flex-shrink:0}
 .cinfo{min-width:0;flex:1}.cen{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.03em;color:var(--tmd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cth{font-family:'Noto Sans Thai',sans-serif;font-size:10px;color:var(--tdim)}
 .ctier{font-family:'Share Tech Mono',monospace;font-size:8px;padding:1px 4px;margin-left:auto;flex-shrink:0}
@@ -499,6 +499,18 @@ const HAIR_FB = [
 ];
 
 // color map for hair swatches (CSS color หรือ gradient)
+// ── Country Flag Emoji map (ครบ 50 ประเทศ) ──
+const FLAGS = {
+  TH:'🇹🇭', JP:'🇯🇵', KR:'🇰🇷', CN:'🇨🇳', IN:'🇮🇳', ID:'🇮🇩', PH:'🇵🇭',
+  VN:'🇻🇳', MY:'🇲🇾', SG:'🇸🇬', AU:'🇦🇺', NZ:'🇳🇿', PK:'🇵🇰', BD:'🇧🇩', LK:'🇱🇰',
+  SA:'🇸🇦', AE:'🇦🇪', TR:'🇹🇷', IL:'🇮🇱', IR:'🇮🇷',
+  GB:'🇬🇧', FR:'🇫🇷', DE:'🇩🇪', IT:'🇮🇹', ES:'🇪🇸', RU:'🇷🇺', NL:'🇳🇱',
+  SE:'🇸🇪', NO:'🇳🇴', PL:'🇵🇱', CH:'🇨🇭', PT:'🇵🇹', UA:'🇺🇦', GR:'🇬🇷',
+  US:'🇺🇸', CA:'🇨🇦', MX:'🇲🇽', BR:'🇧🇷', AR:'🇦🇷', CO:'🇨🇴', CL:'🇨🇱',
+  VE:'🇻🇪', PE:'🇵🇪',
+  NG:'🇳🇬', EG:'🇪🇬', ZA:'🇿🇦', KE:'🇰🇪', ET:'🇪🇹', MA:'🇲🇦', GH:'🇬🇭',
+};
+
 const HAIR_COLOR = {
   black:'#111',silver:'#c0c0c0',white:'#eee',red:'#cc2200',blue:'#0066cc',
   purple:'#7700cc',brown:'#8B4513',pink:'#ff69b4',green:'#228B22',grey:'#888',
@@ -564,7 +576,7 @@ function renderCt(list){
   if(!list.length){ g.innerHTML='<div class="ld-box">No results</div>'; return; }
   g.innerHTML=list.map(c=>`
     <div class="ccard" id="ct${c.code}" onclick="selCt('${c.code}')">
-      <div class="ccode">${c.code}</div>
+      <span class="cflag">${FLAGS[c.code]||'🌐'}</span>
       <div class="cinfo">
         <div class="cen">${c.name_en}</div>
         <div class="cth">${c.name_th||''}</div>
@@ -745,12 +757,13 @@ async function generatePreview(){
     finishProgress(); clearInterval(narratorTimer);
     loadEl.classList.add('hidden');
 
-    // base64 → blob URL
-    const byteStr = atob(data.image);
-    const ab = new ArrayBuffer(byteStr.length);
-    const ia = new Uint8Array(ab);
+    // base64 → blob URL (รองรับทั้ง jpeg และ png จาก HF)
+    const mimeType = data.contentType || 'image/jpeg';
+    const byteStr  = atob(data.image);
+    const ab       = new ArrayBuffer(byteStr.length);
+    const ia       = new Uint8Array(ab);
     for(let i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
-    const blob = new Blob([ab], {type:'image/jpeg'});
+    const blob = new Blob([ab], {type: mimeType});
     const url  = URL.createObjectURL(blob);
 
     imgEl.src=url; imgEl.style.display='block';
