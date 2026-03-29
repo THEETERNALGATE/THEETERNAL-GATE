@@ -95,9 +95,6 @@ body{background:var(--bg);color:var(--tm);font-family:'Saira Condensed','Noto Sa
 .fi.err{border-color:var(--nr);box-shadow:0 0 0 1px rgba(255,0,68,0.12)}
 .fi.ok{border-color:rgba(0,255,136,0.4)}
 
-
-
-@keyframes holo-scan{0%{transform:translateY(-120%)}100%{transform:translateY(120%)}}
 .fhint{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--tdd);margin-top:4px;letter-spacing:.06em}
 
 /* PIN row */
@@ -200,7 +197,7 @@ body{background:var(--bg);color:var(--tm);font-family:'Saira Condensed','Noto Sa
       <div class="field">
         <label class="fl"><span class="fl-ico"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="2"/><path d="M12 16v2"/></svg></span>TRANSACTION PIN (6 หลัก)</label>
         <div class="pin-row">
-          <input class="fi" type="password" id="regPin" placeholder="●●●●●●" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="padding-left:16px">
+          <input class="fi" type="password" id="regPin" placeholder="●●●●●●" maxlength="6" inputmode="numeric" pattern="[0-9]*">
           <span class="pin-note">ใช้ยืนยันการซื้อขายในตลาด</span>
         </div>
       </div>
