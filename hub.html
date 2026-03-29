@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>THE ETERNAL GATE — Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@300;400;700;900&family=Share+Tech+Mono&family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ROOT & BASE
+═══════════════════════════════════════════════════════════ */
+:root{
+  --nb:#00ccff; --nr:#ff0044; --ng:#00ff88; --np:#9b4dff; --ny:#ffcc00;
+  --bg:#010208; --bg2:#040c18; --bg3:#060f1e;
+  --bdr:rgba(0,204,255,0.14); --bdim:rgba(0,204,255,0.07);
+  --tm:#d8eeff; --td:#3a6a88; --tdd:#12293a;
+  --fm:'Share Tech Mono',monospace;
+  --fd:'Saira Condensed',sans-serif;
+  --fth:'Noto Sans Thai',sans-serif;
+  --cls-color:#00ccff;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-text-size-adjust:100%}
+html{height:100%;overscroll-behavior:none}
+body{
+  min-height:100%;background:var(--bg);color:var(--tm);
+  font-family:var(--fd),var(--fth),sans-serif;
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:rgba(0,204,255,0.2)}
+
+/* ═══════════════════════════════════════════════════════════
+   BACKGROUND
+═══════════════════════════════════════════════════════════ */
+.bg-fixed{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(0,60,120,0.5) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 100% 80%,rgba(100,0,180,0.15) 0%,transparent 50%),
+    var(--bg);
+}
+.scan{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,204,255,0.006) 3px,rgba(0,204,255,0.006) 4px);
+}
+.corner{position:fixed;z-index:4;pointer-events:none;border-color:rgba(0,204,255,0.25);border-style:solid;width:32px;height:32px}
+.c-tl{top:12px;left:12px;border-width:1px 0 0 1px}
+.c-tr{top:12px;right:12px;border-width:1px 1px 0 0}
+.c-bl{bottom:calc(12px + var(--safe-bottom) + 60px);left:12px;border-width:0 0 1px 1px}
+.c-br{bottom:calc(12px + var(--safe-bottom) + 60px);right:12px;border-width:0 1px 1px 0}
+
+/* ═══════════════════════════════════════════════════════════
+   TOP NAV BAR
+═══════════════════════════════════════════════════════════ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:52px;
+  background:rgba(1,2,8,0.95);
+  border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;
+  backdrop-filter:blur(10px);
+}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--cls-color);box-shadow:0 0 6px var(--cls-color);animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-title{font-family:var(--fm);font-size:9px;letter-spacing:.2em;color:var(--td);text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.tb-time{font-family:var(--fm);font-size:10px;letter-spacing:.1em;color:var(--td)}
+.tb-notif{
+  position:relative;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.tb-notif-ico{font-size:14px;opacity:.6}
+.tb-notif-badge{
+  position:absolute;top:2px;right:2px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--nr);box-shadow:0 0 6px var(--nr);
+  display:none;
+}
+.tb-notif-badge.on{display:block}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN SCROLL AREA
+═══════════════════════════════════════════════════════════ */
+.main{
+  position:relative;z-index:10;
+  padding-top:52px;
+  padding-bottom:calc(70px + var(--safe-bottom));
+  min-height:100vh;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHARACTER CARD (TOP SECTION)
+═══════════════════════════════════════════════════════════ */
+.char-section{
+  padding:16px 14px 0;
+  position:relative;
+}
+.char-card{
+  background:var(--bg2);
+  border:1px solid var(--bdr);
+  padding:16px;
+  position:relative;overflow:hidden;
+}
+.char-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cls-color),transparent);
+  opacity:.6;
+}
+.char-top{display:flex;gap:14px;align-items:flex-start}
+
+/* avatar */
+.char-avatar{
+  width:70px;height:70px;flex-shrink:0;
+  background:var(--bg3);
+  border:1px solid rgba(0,204,255,0.2);
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.char-avatar img{width:100%;height:100%;object-fit:cover}
+.char-avatar-placeholder{
+  font-family:var(--fm);font-size:24px;color:var(--td);
+}
+.char-avatar-rank{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,.75);
+  font-family:var(--fm);font-size:7px;letter-spacing:.1em;
+  text-align:center;padding:2px 0;color:var(--cls-color);
+  text-transform:uppercase;
+}
+
+/* char info */
+.char-info{flex:1;min-width:0}
+.char-name{
+  font-family:var(--fd);font-weight:900;
+  font-size:clamp(20px,6vw,30px);letter-spacing:.06em;
+  color:#fff;line-height:1;margin-bottom:2px;
+  text-shadow:0 0 20px rgba(0,204,255,.2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.char-class-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.char-class{
+  font-family:var(--fm);font-size:9px;letter-spacing:.12em;
+  padding:2px 8px;border:1px solid var(--cls-color);color:var(--cls-color);
+  text-transform:uppercase;
+}
+.char-country{font-family:var(--fm);font-size:9px;color:var(--td);letter-spacing:.08em}
+
+/* online players */
+.char-online{
+  font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--ng);
+  display:flex;align-items:center;gap:5px;
+}
+.online-dot{width:5px;height:5px;border-radius:50%;background:var(--ng);animation:pulse-dot 1.5s ease-in-out infinite}
+
+/* ═══════════════════════════════════════════════════════════
+   STAT BARS
+═══════════════════════════════════════════════════════════ */
+.stat-bars{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.sbar-row{display:flex;align-items:center;gap:8px}
+.sbar-label{font-family:var(--fm);font-size:8px;letter-spacing:.12em;color:var(--td);text-transform:uppercase;width:64px;flex-shrink:0}
+.sbar-track{flex:1;height:4px;background:rgba(255,255,255,.05);overflow:hidden;position:relative;border-radius:2px}
+.sbar-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.2,.9,.4,1.1)}
+.sbar-val{font-family:var(--fm);font-size:9px;color:var(--tm);width:28px;text-align:right;flex-shrink:0}
+
+/* EXP bar */
+.exp-row{
+  margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--bdim);
+}
+.exp-header{display:flex;justify-content:space-between;margin-bottom:5px}
+.exp-lbl{font-family:var(--fm);font-size:8px;letter-spacing:.12em;color:var(--td);text-transform:uppercase}
+.exp-val{font-family:var(--fm);font-size:8px;color:var(--cls-color)}
+.exp-track{height:3px;background:rgba(0,204,255,.06);border-radius:2px;overflow:hidden;position:relative}
+.exp-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--cls-color),#fff);transition:width 1s cubic-bezier(.2,.9,.4,1.1);position:relative}
+.exp-fill::after{content:'';position:absolute;right:0;top:-1px;width:4px;height:5px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff}
+
+/* Stamina bar */
+.sta-row{margin-top:8px}
+.sta-fill{background:linear-gradient(90deg,#00ff88,#00cc66)}
+
+/* ═══════════════════════════════════════════════════════════
+   STAT GRID (STR AGI INT DEF)
+═══════════════════════════════════════════════════════════ */
+.stat-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  margin-top:10px;
+}
+.stat-box{
+  border:1px solid var(--bdr);background:rgba(0,204,255,.025);
+  padding:8px 4px;text-align:center;
+}
+.stat-box-v{font-family:var(--fd);font-weight:900;font-size:18px;color:var(--cls-color)}
+.stat-box-l{font-family:var(--fm);font-size:7px;color:var(--td);letter-spacing:.1em;margin-top:1px}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════════════════════ */
+.sec-hdr{
+  padding:18px 14px 8px;
+  display:flex;align-items:center;gap:10px;
+}
+.sec-hdr-line{flex:1;height:1px;background:var(--bdim)}
+.sec-hdr-txt{
+  font-family:var(--fm);font-size:8px;letter-spacing:.2em;
+  color:var(--td);text-transform:uppercase;white-space:nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOCATION CARD
+═══════════════════════════════════════════════════════════ */
+.location-card{
+  margin:0 14px;
+  background:var(--bg2);border:1px solid var(--bdr);
+  padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:background .2s;
+  position:relative;overflow:hidden;
+}
+.location-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--cls-color),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.location-card:active::before{opacity:.03}
+.loc-left{}
+.loc-tag{font-family:var(--fm);font-size:8px;letter-spacing:.15em;color:var(--td);text-transform:uppercase;margin-bottom:3px}
+.loc-name{font-family:var(--fd);font-weight:700;font-size:18px;letter-spacing:.05em;color:#fff}
+.loc-sub{font-family:var(--fm);font-size:9px;color:var(--td);margin-top:2px;letter-spacing:.06em}
+.loc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.loc-players{font-family:var(--fm);font-size:8px;color:var(--ng);letter-spacing:.08em;display:flex;align-items:center;gap:4px}
+.loc-travel{
+  font-family:var(--fm);font-size:8px;letter-spacing:.1em;
+  padding:4px 10px;border:1px solid rgba(0,204,255,.3);color:var(--nb);
+  text-transform:uppercase;cursor:pointer;transition:all .2s;
+}
+.loc-travel:hover{background:rgba(0,204,255,.08)}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN MENU GRID
+═══════════════════════════════════════════════════════════ */
+.menu-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;padding:0 14px;
+}
+.menu-item{
+  background:var(--bg2);
+  border:1px solid var(--bdr);
+  padding:16px 14px;
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:all .2s;
+  display:flex;flex-direction:column;gap:6px;
+  -webkit-user-select:none;user-select:none;
+}
+.menu-item::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:var(--mi-color,var(--nb));opacity:.4;
+}
+.menu-item:active{transform:scale(.98);background:rgba(0,204,255,.03)}
+.menu-item.locked{opacity:.4;pointer-events:none}
+.mi-ico{
+  font-family:var(--fm);font-size:10px;letter-spacing:.1em;
+  color:var(--mi-color,var(--nb));text-transform:uppercase;
+}
+.mi-name{font-family:var(--fd);font-weight:700;font-size:17px;letter-spacing:.05em;color:#fff}
+.mi-desc{font-family:var(--fm);font-size:8px;color:var(--td);letter-spacing:.06em;line-height:1.5}
+.mi-badge{
+  position:absolute;top:10px;right:10px;
+  font-family:var(--fm);font-size:7px;letter-spacing:.08em;
+  padding:2px 6px;text-transform:uppercase;
+}
+.mi-badge.new{background:rgba(255,0,68,.1);color:var(--nr);border:1px solid rgba(255,0,68,.25)}
+.mi-badge.lock{background:rgba(255,255,255,.04);color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.1)}
+.mi-badge.soon{background:rgba(255,204,0,.06);color:var(--ny);border:1px solid rgba(255,204,0,.2)}
+
+/* story item full width */
+.menu-item.full{grid-column:1/-1}
+
+/* ═══════════════════════════════════════════════════════════
+   WORLD EVENT BANNER
+═══════════════════════════════════════════════════════════ */
+.event-banner{
+  margin:0 14px;
+  border:1px solid rgba(255,0,68,.25);
+  background:rgba(255,0,68,.03);
+  padding:12px 14px;
+  display:flex;align-items:center;gap:12px;
+  position:relative;overflow:hidden;
+  animation:event-pulse 3s ease-in-out infinite;
+  display:none; /* show via JS if event exists */
+}
+.event-banner.on{display:flex}
+@keyframes event-pulse{0%,100%{border-color:rgba(255,0,68,.25)}50%{border-color:rgba(255,0,68,.5)}}
+.event-indicator{
+  width:8px;height:8px;border-radius:50%;background:var(--nr);
+  flex-shrink:0;animation:pulse-dot 1s ease-in-out infinite;
+}
+.event-text-wrap{}
+.event-tag{font-family:var(--fm);font-size:7px;letter-spacing:.15em;color:var(--nr);text-transform:uppercase;margin-bottom:2px}
+.event-title{font-family:var(--fd);font-weight:700;font-size:14px;letter-spacing:.04em;color:#fff}
+
+/* ═══════════════════════════════════════════════════════════
+   ONLINE PLAYERS LIST
+═══════════════════════════════════════════════════════════ */
+.online-list{padding:0 14px;display:flex;flex-direction:column;gap:6px}
+.online-item{
+  background:var(--bg2);border:1px solid var(--bdim);
+  padding:10px 12px;
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;transition:border-color .2s;
+}
+.online-item:active{border-color:rgba(0,204,255,.3)}
+.oi-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.oi-dot.online{background:var(--ng);box-shadow:0 0 5px var(--ng)}
+.oi-dot.away{background:var(--ny)}
+.oi-name{font-family:var(--fd);font-weight:700;font-size:14px;letter-spacing:.03em;color:var(--tm);flex:1}
+.oi-class{font-family:var(--fm);font-size:8px;letter-spacing:.08em;color:var(--td)}
+.oi-rank{font-family:var(--fm);font-size:8px;padding:1px 5px;border:1px solid;text-transform:uppercase}
+.rank-e{color:#aaa;border-color:rgba(170,170,170,.3)}
+.rank-d{color:#88aacc;border-color:rgba(100,150,200,.3)}
+.rank-c{color:#44bbff;border-color:rgba(68,187,255,.3)}
+.rank-b{color:#44ff88;border-color:rgba(68,255,136,.3)}
+.rank-a{color:#ffaa00;border-color:rgba(255,170,0,.3)}
+.rank-s{color:#ff4455;border-color:rgba(255,68,85,.3)}
+.online-empty{font-family:var(--fm);font-size:10px;color:var(--tdd);letter-spacing:.1em;text-align:center;padding:20px}
+
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATION PANEL (slide in)
+═══════════════════════════════════════════════════════════ */
+.notif-overlay{
+  position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  backdrop-filter:blur(4px);
+}
+.notif-overlay.on{opacity:1;pointer-events:all}
+.notif-panel{
+  position:fixed;top:0;right:0;bottom:0;z-index:501;
+  width:min(320px,90vw);
+  background:rgba(3,8,20,.98);
+  border-left:1px solid var(--bdr);
+  transform:translateX(100%);
+  transition:transform .3s cubic-bezier(.16,1,.3,1);
+  display:flex;flex-direction:column;
+}
+.notif-overlay.on .notif-panel{transform:translateX(0)}
+.notif-hdr{
+  height:52px;padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--bdr);
+  flex-shrink:0;
+}
+.notif-hdr-t{font-family:var(--fm);font-size:9px;letter-spacing:.18em;color:var(--td);text-transform:uppercase}
+.notif-close{font-size:18px;color:var(--td);cursor:pointer;padding:8px}
+.notif-body{flex:1;overflow-y:auto;padding:12px}
+.notif-item{
+  padding:12px;border:1px solid var(--bdim);margin-bottom:8px;
+  background:rgba(0,204,255,.015);
+}
+.notif-type{font-family:var(--fm);font-size:8px;letter-spacing:.12em;color:var(--nb);text-transform:uppercase;margin-bottom:4px}
+.notif-text{font-family:var(--fth);font-size:12px;color:var(--tm);line-height:1.6}
+.notif-time{font-family:var(--fm);font-size:8px;color:var(--tdd);margin-top:4px}
+.notif-empty{font-family:var(--fm);font-size:10px;color:var(--tdd);text-align:center;padding:40px 0}
+
+/* ═══════════════════════════════════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════════════════════════════════ */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  height:calc(58px + var(--safe-bottom));
+  background:rgba(1,2,8,.97);
+  border-top:1px solid var(--bdr);
+  display:flex;
+  padding-bottom:var(--safe-bottom);
+  backdrop-filter:blur(10px);
+}
+.bn-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;transition:all .2s;
+  position:relative;
+}
+.bn-item.active .bn-ico{color:var(--cls-color)}
+.bn-item.active .bn-lbl{color:var(--cls-color)}
+.bn-item.active::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:var(--cls-color);box-shadow:0 0 6px var(--cls-color);
+}
+.bn-ico{font-size:16px;color:var(--tdd);transition:color .2s;font-family:var(--fm)}
+.bn-lbl{font-family:var(--fm);font-size:7px;letter-spacing:.1em;color:var(--tdd);text-transform:uppercase;transition:color .2s}
+
+/* ═══════════════════════════════════════════════════════════
+   LOADING / STATUS
+═══════════════════════════════════════════════════════════ */
+.loading-screen{
+  position:fixed;inset:0;z-index:900;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  transition:opacity .4s;
+}
+.loading-screen.hidden{opacity:0;pointer-events:none}
+.ld-ring{
+  width:40px;height:40px;
+  border:2px solid rgba(0,204,255,.1);border-top-color:var(--nb);
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-txt{font-family:var(--fm);font-size:9px;letter-spacing:.2em;color:var(--td);text-transform:uppercase}
+
+.spin-sm{display:inline-block;width:10px;height:10px;border:1px solid rgba(0,204,255,.2);border-top-color:var(--nb);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+
+/* Flash transition */
+#flash{position:fixed;inset:0;z-index:9999;background:#fff;opacity:0;pointer-events:none;transition:opacity .08s}
+#flash.on{opacity:1}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:calc(70px + var(--safe-bottom) + 8px);left:50%;transform:translateX(-50%);
+  z-index:800;background:rgba(3,10,22,.95);border:1px solid var(--bdr);
+  font-family:var(--fm);font-size:10px;letter-spacing:.08em;color:var(--tm);
+  padding:10px 18px;white-space:nowrap;
+  animation:toast-in .25s ease;
+  pointer-events:none;
+}
+@keyframes toast-in{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* World Chat pill */
+.world-chat-btn{
+  position:fixed;bottom:calc(70px + var(--safe-bottom) + 12px);right:14px;z-index:200;
+  background:rgba(3,10,22,.9);border:1px solid var(--bdr);
+  display:flex;align-items:center;gap:6px;
+  padding:8px 14px;cursor:pointer;transition:all .2s;
+}
+.world-chat-btn:active{background:rgba(0,204,255,.08)}
+.wcb-ico{font-family:var(--fm);font-size:10px;color:var(--nb)}
+.wcb-lbl{font-family:var(--fm);font-size:8px;letter-spacing:.1em;color:var(--td);text-transform:uppercase}
+
+/* World chat modal */
+.wchat-modal{
+  position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.85);
+  display:none;align-items:flex-end;
+  backdrop-filter:blur(4px);
+}
+.wchat-modal.on{display:flex}
+.wchat-box{
+  width:100%;background:rgba(3,8,20,.99);border-top:1px solid var(--bdr);
+  padding:16px 14px calc(16px + var(--safe-bottom));
+}
+.wchat-title{font-family:var(--fm);font-size:9px;letter-spacing:.18em;color:var(--td);text-transform:uppercase;margin-bottom:12px}
+.wchat-input-row{display:flex;gap:8px}
+.wchat-input{
+  flex:1;padding:12px 14px;
+  background:rgba(0,204,255,.03);border:1px solid var(--bdr);
+  color:var(--tm);font-family:var(--fm);font-size:13px;
+  outline:none;border-radius:0;-webkit-appearance:none;
+  letter-spacing:.04em;
+}
+.wchat-input:focus{border-color:rgba(0,204,255,.4)}
+.wchat-send{
+  padding:12px 16px;background:transparent;border:1px solid var(--nb);
+  color:var(--nb);font-family:var(--fd);font-weight:700;font-size:12px;
+  letter-spacing:.15em;text-transform:uppercase;cursor:pointer;
+  white-space:nowrap;transition:all .2s;
+}
+.wchat-send:active{background:rgba(0,204,255,.1)}
+.wchat-hint{font-family:var(--fm);font-size:8px;color:var(--tdd);margin-top:8px;letter-spacing:.06em}
+
+/* Section tabs */
+.tabs-row{
+  display:flex;border-bottom:1px solid var(--bdim);
+  margin:0 14px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.tabs-row::-webkit-scrollbar{display:none}
+.tab-item{
+  flex-shrink:0;padding:10px 16px;
+  font-family:var(--fm);font-size:9px;letter-spacing:.14em;
+  color:var(--tdd);text-transform:uppercase;cursor:pointer;
+  border-bottom:1px solid transparent;
+  transition:all .2s;
+}
+.tab-item.active{color:var(--nb);border-color:var(--nb)}
+
+/* Tab content */
+.tab-content{display:none;padding-bottom:8px}
+.tab-content.active{display:block}
+
+/* Gate list */
+.gate-list{padding:0 14px;display:flex;flex-direction:column;gap:6px}
+.gate-item{
+  border:1px solid var(--bdim);background:var(--bg2);
+  padding:12px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:border-color .2s;
+}
+.gate-item:active{border-color:rgba(0,204,255,.3)}
+.gate-item.locked-rank{opacity:.5;pointer-events:none}
+.gi-left{}
+.gi-rank{
+  font-family:var(--fm);font-size:8px;letter-spacing:.1em;
+  padding:2px 6px;border:1px solid;text-transform:uppercase;
+  margin-bottom:4px;display:inline-block;
+}
+.gi-name{font-family:var(--fd);font-weight:700;font-size:14px;letter-spacing:.04em;color:#fff}
+.gi-cost{font-family:var(--fm);font-size:8px;color:var(--td);margin-top:2px}
+.gi-right{text-align:right}
+.gi-reward{font-family:var(--fm);font-size:9px;color:var(--ng)}
+.gi-enter{
+  margin-top:4px;font-family:var(--fm);font-size:8px;letter-spacing:.1em;
+  padding:4px 10px;border:1px solid rgba(0,204,255,.3);color:var(--nb);
+  text-transform:uppercase;
+}
+
+/* Responsive */
+@media(max-width:380px){
+  .menu-grid{gap:6px;padding:0 10px}
+  .char-section,.sec-hdr,.gate-list,.online-list,.location-card{padding-left:10px;padding-right:10px}
+  .menu-grid{padding:0 10px}
+  .location-card,.event-banner{margin:0 10px}
+  .tabs-row{margin:0 10px}
+}
+@media(min-width:600px){
+  .main{max-width:640px;margin:0 auto}
+  .topbar,.bottom-nav,.world-chat-btn{max-width:640px;left:50%;transform:translateX(-50%)}
+  .world-chat-btn{left:auto;right:max(14px,calc(50% - 306px));transform:none}
+  .notif-panel{right:max(0px,calc(50% - 320px))}
+}
+</style>
+</head>
+<body>
+
+<div id="flash"></div>
+<div class="bg-fixed"></div>
+<div class="scan"></div>
+<div class="corner c-tl"></div><div class="corner c-tr"></div>
+<div class="corner c-bl"></div><div class="corner c-br"></div>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="ld-ring"></div>
+  <div class="ld-txt">Loading Hunter Data...</div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-overlay" id="notifOverlay" onclick="closeNotif(event)">
+  <div class="notif-panel">
+    <div class="notif-hdr">
+      <span class="notif-hdr-t">[ NOTIFICATIONS ]</span>
+      <span class="notif-close" onclick="closeNotif()">x</span>
+    </div>
+    <div class="notif-body" id="notifBody">
+      <div class="notif-empty">ไม่มีการแจ้งเตือน</div>
+    </div>
+  </div>
+</div>
+
+<!-- WORLD CHAT MODAL -->
+<div class="wchat-modal" id="wchatModal" onclick="closeWChat(event)">
+  <div class="wchat-box" onclick="event.stopPropagation()">
+    <div class="wchat-title">[ WORLD BROADCAST ]</div>
+    <div class="wchat-input-row">
+      <input class="wchat-input" type="text" id="wchatInput" placeholder="ส่งข้อความถึงทุกคนในโลก..." maxlength="120">
+      <button class="wchat-send" onclick="sendWorldChat()">SEND</button>
+    </div>
+    <div class="wchat-hint">ต้องการ Rank B+ หรือ โทรโข่งมิต · กด ESC เพื่อปิด</div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="tb-dot"></div>
+    <span class="tb-title">THE ETERNAL GATE</span>
+  </div>
+  <div class="topbar-right">
+    <span class="tb-time" id="tbTime">--:--</span>
+    <div class="tb-notif" onclick="openNotif()">
+      <span class="tb-notif-ico">[!]</span>
+      <div class="tb-notif-badge" id="notifBadge"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- ── CHARACTER CARD ── -->
+  <div class="char-section">
+    <div class="char-card" id="charCard">
+      <div class="char-top">
+        <div class="char-avatar" id="charAvatar">
+          <div class="char-avatar-placeholder" id="charAvatarPh">?</div>
+          <div class="char-avatar-rank" id="charAvatarRank">E</div>
+        </div>
+        <div class="char-info">
+          <div class="char-name" id="charName">LOADING...</div>
+          <div class="char-class-row">
+            <div class="char-class" id="charClass">—</div>
+            <div class="char-country" id="charCountry"></div>
+          </div>
+          <div class="char-online">
+            <div class="online-dot"></div>
+            <span id="onlineCount">— คนออนไลน์ในพื้นที่</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXP -->
+      <div class="exp-row">
+        <div class="exp-header">
+          <span class="exp-lbl">EXP — LV <span id="charLevel">1</span></span>
+          <span class="exp-val" id="expVal">0 / 1000</span>
+        </div>
+        <div class="exp-track"><div class="exp-fill" id="expBar" style="width:0%"></div></div>
+      </div>
+
+      <!-- STAMINA -->
+      <div class="sta-row">
+        <div class="exp-header">
+          <span class="exp-lbl">STAMINA</span>
+          <span class="exp-val" id="staVal">100 / 100</span>
+        </div>
+        <div class="exp-track"><div class="exp-fill sta-fill" id="staBar" style="width:100%"></div></div>
+      </div>
+
+      <!-- STAT GRID -->
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-box"><div class="stat-box-v" id="st-STR">—</div><div class="stat-box-l">STR</div></div>
+        <div class="stat-box"><div class="stat-box-v" id="st-AGI">—</div><div class="stat-box-l">AGI</div></div>
+        <div class="stat-box"><div class="stat-box-v" id="st-INT">—</div><div class="stat-box-l">INT</div></div>
+        <div class="stat-box"><div class="stat-box-v" id="st-DEF">—</div><div class="stat-box-l">DEF</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WORLD EVENT ── -->
+  <div class="sec-hdr"><div class="sec-hdr-line"></div><span class="sec-hdr-txt">World Event</span><div class="sec-hdr-line"></div></div>
+  <div class="event-banner" id="eventBanner">
+    <div class="event-indicator"></div>
+    <div class="event-text-wrap">
+      <div class="event-tag">[ ACTIVE EVENT ]</div>
+      <div class="event-title" id="eventTitle">—</div>
+    </div>
+  </div>
+
+  <!-- ── CURRENT LOCATION ── -->
+  <div class="sec-hdr"><div class="sec-hdr-line"></div><span class="sec-hdr-txt">Current Location</span><div class="sec-hdr-line"></div></div>
+  <div class="location-card" onclick="goTo('world.html')">
+    <div class="loc-left">
+      <div class="loc-tag">// ตำแหน่งปัจจุบัน</div>
+      <div class="loc-name" id="locName">เมืองเริ่มต้น</div>
+      <div class="loc-sub" id="locSub">City Hub · Zone 01</div>
+    </div>
+    <div class="loc-right">
+      <div class="loc-players"><div class="online-dot" style="width:5px;height:5px;background:var(--ng);border-radius:50%;flex-shrink:0"></div><span id="locPlayers">? คน</span></div>
+      <div class="loc-travel">MAP</div>
+    </div>
+  </div>
+
+  <!-- ── MAIN MENU ── -->
+  <div class="sec-hdr"><div class="sec-hdr-line"></div><span class="sec-hdr-txt">Actions</span><div class="sec-hdr-line"></div></div>
+  <div class="menu-grid">
+
+    <!-- STORY — full width -->
+    <div class="menu-item full" style="--mi-color:#aa44ff" onclick="goTo('story.html')">
+      <div class="mi-ico">// STORY</div>
+      <div class="mi-name">WEBTOON STORY</div>
+      <div class="mi-desc">ดำเนินเนื้อเรื่องของตัวเอง<br>เลือก action → รับ EXP → ภาพ AI</div>
+      <div class="mi-badge new">NEW</div>
+    </div>
+
+    <!-- GATE -->
+    <div class="menu-item" style="--mi-color:#ff4455" onclick="goTo('gate.html')">
+      <div class="mi-ico">// GATE</div>
+      <div class="mi-name">DUNGEON</div>
+      <div class="mi-desc">เข้าดันเจี้ยน<br>Solo หรือ Party</div>
+    </div>
+
+    <!-- MARKET -->
+    <div class="menu-item" style="--mi-color:#ffaa00" onclick="goTo('market.html')">
+      <div class="mi-ico">// TRADE</div>
+      <div class="mi-name">MARKET</div>
+      <div class="mi-desc">ซื้อขายไอเทม<br>ตลาด Hunter</div>
+    </div>
+
+    <!-- WORLD MAP -->
+    <div class="menu-item" style="--mi-color:#00ccff" onclick="goTo('world.html')">
+      <div class="mi-ico">// MAP</div>
+      <div class="mi-name">WORLD</div>
+      <div class="mi-desc">แผนที่โลก<br>เดินทางระหว่างเมือง</div>
+    </div>
+
+    <!-- PVP -->
+    <div class="menu-item locked" style="--mi-color:#ff0044">
+      <div class="mi-ico">// COMBAT</div>
+      <div class="mi-name">PVP</div>
+      <div class="mi-desc">ต่อสู้ผู้เล่นอื่น<br>ต้องการ Rank C+</div>
+      <div class="mi-badge lock">LOCKED</div>
+    </div>
+
+    <!-- PROFILE / CARD -->
+    <div class="menu-item" style="--mi-color:#00ff88" onclick="goTo('profile.html')">
+      <div class="mi-ico">// PROFILE</div>
+      <div class="mi-name">HUNTER ID</div>
+      <div class="mi-desc">บัตรฮันเตอร์<br>สถิติ + ประวัติ</div>
+    </div>
+
+  </div>
+
+  <!-- ── NEARBY TABS ── -->
+  <div class="sec-hdr"><div class="sec-hdr-line"></div><span class="sec-hdr-txt">Nearby</span><div class="sec-hdr-line"></div></div>
+  <div class="tabs-row" id="nearbyTabs">
+    <div class="tab-item active" onclick="switchTab('players')">Players</div>
+    <div class="tab-item" onclick="switchTab('gates')">Gates</div>
+    <div class="tab-item" onclick="switchTab('quests')">Quests</div>
+  </div>
+
+  <!-- Players tab -->
+  <div class="tab-content active" id="tab-players">
+    <div style="height:10px"></div>
+    <div class="online-list" id="onlineList">
+      <div class="online-empty"><span class="spin-sm"></span>กำลังโหลด...</div>
+    </div>
+  </div>
+
+  <!-- Gates tab -->
+  <div class="tab-content" id="tab-gates">
+    <div style="height:10px"></div>
+    <div class="gate-list" id="gateList">
+      <div class="online-empty"><span class="spin-sm"></span>กำลังโหลด...</div>
+    </div>
+  </div>
+
+  <!-- Quests tab -->
+  <div class="tab-content" id="tab-quests">
+    <div style="height:10px"></div>
+    <div class="online-list">
+      <div class="online-empty" style="padding:40px 0">Quest System — Coming Soon</div>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+</div><!-- /main -->
+
+<!-- WORLD CHAT BUTTON -->
+<div class="world-chat-btn" onclick="openWChat()">
+  <span class="wcb-ico">[W]</span>
+  <span class="wcb-lbl">World Chat</span>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="bn-item active" onclick="scrollToTop()">
+    <span class="bn-ico">[H]</span>
+    <span class="bn-lbl">Hub</span>
+  </div>
+  <div class="bn-item" onclick="goTo('story.html')">
+    <span class="bn-ico">[S]</span>
+    <span class="bn-lbl">Story</span>
+  </div>
+  <div class="bn-item" onclick="goTo('gate.html')">
+    <span class="bn-ico">[G]</span>
+    <span class="bn-lbl">Gate</span>
+  </div>
+  <div class="bn-item" onclick="goTo('world.html')">
+    <span class="bn-ico">[W]</span>
+    <span class="bn-lbl">World</span>
+  </div>
+  <div class="bn-item" onclick="goTo('profile.html')">
+    <span class="bn-ico">[P]</span>
+    <span class="bn-lbl">Profile</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://ejurtaivfrozzhassvgf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXJ0YWl2ZnJvenpoYXNzdmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTM5MTYsImV4cCI6MjA5MDMyOTkxNn0.m9LaUaK3eRwY_TxdI0aCrnEASsqE4WdIioALfYVjVI0';
+if(!window.__ndSb) window.__ndSb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const sb = window.__ndSb;
+
+/* ════════════════════════════════════════════════
+   CLASS COLOR MAP
+════════════════════════════════════════════════ */
+const CLASS_COLORS = {
+  Warrior:'#ff4455', Mage:'#9b4dff', Assassin:'#00ff88',
+  Tank:'#3399ff', Healer:'#ffdd44', Merchant:'#ff9900', 'Shadow Heir':'#ff003c'
+};
+const RANK_ORDER = ['E','D','C','B','A','S','National','Monarch'];
+
+/* ════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════ */
+let charData = null;
+let session  = null;
+let realtimeSub = null;
+
+/* ════════════════════════════════════════════════
+   CLOCK
+════════════════════════════════════════════════ */
+function updateClock(){
+  const now = new Date();
+  document.getElementById('tbTime').textContent =
+    now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+/* ════════════════════════════════════════════════
+   FLASH TRANSITION
+════════════════════════════════════════════════ */
+function flash(cb){
+  const f=document.getElementById('flash');
+  f.classList.add('on');
+  setTimeout(()=>{ f.classList.remove('on'); if(cb) cb(); }, 100);
+}
+
+/* ════════════════════════════════════════════════
+   NAV
+════════════════════════════════════════════════ */
+function goTo(url){
+  flash(()=>{ window.location.href = url; });
+}
+function scrollToTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+
+/* ════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg, dur=2500){
+  if(toastTimer) clearTimeout(toastTimer);
+  let t = document.querySelector('.toast');
+  if(!t){ t = document.createElement('div'); t.className='toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  toastTimer = setTimeout(()=>{ t.style.opacity='0'; }, dur);
+}
+
+/* ════════════════════════════════════════════════
+   APPLY CHARACTER DATA TO UI
+════════════════════════════════════════════════ */
+function applyChar(c){
+  charData = c;
+  const col = CLASS_COLORS[c.className] || '#00ccff';
+  document.documentElement.style.setProperty('--cls-color', col);
+
+  // name / class
+  document.getElementById('charName').textContent = c.name;
+  const clsEl = document.getElementById('charClass');
+  clsEl.textContent = c.className;
+  clsEl.style.borderColor = col;
+  clsEl.style.color = col;
+
+  // country
+  document.getElementById('charCountry').textContent = c.countryName || '';
+
+  // rank
+  const rank = c.rank || 'E';
+  document.getElementById('charAvatarRank').textContent = rank;
+
+  // avatar
+  if(c.imageUrl){
+    const av = document.getElementById('charAvatar');
+    const ph = document.getElementById('charAvatarPh');
+    const img = document.createElement('img');
+    img.src = c.imageUrl;
+    img.onerror = ()=>{ img.remove(); };
+    ph.remove();
+    av.insertBefore(img, av.firstChild);
+  }
+
+  // stats
+  ['STR','AGI','INT','DEF'].forEach(k=>{
+    const el = document.getElementById('st-'+k);
+    if(el){ el.textContent = c.stats?.[k] ?? '—'; el.style.color = col; }
+  });
+
+  // level & EXP
+  const lv  = c.level  || 1;
+  const exp = c.exp    || 0;
+  const expPerLv = lv * 1000;
+  const expCur   = exp % expPerLv;
+  document.getElementById('charLevel').textContent = lv;
+  document.getElementById('expVal').textContent    = expCur + ' / ' + expPerLv;
+  setTimeout(()=>{ document.getElementById('expBar').style.width = (expCur/expPerLv*100).toFixed(1)+'%'; }, 300);
+
+  // stamina
+  const sta = c.staminaCurrent ?? 100;
+  const staMax = c.staminaMax  ?? 100;
+  document.getElementById('staVal').textContent = sta + ' / ' + staMax;
+  setTimeout(()=>{ document.getElementById('staBar').style.width = (sta/staMax*100).toFixed(1)+'%'; }, 400);
+
+  // location
+  document.getElementById('locName').textContent = c.cityName   || c.countryName || 'เมืองเริ่มต้น';
+  document.getElementById('locSub').textContent  = c.countryName || '';
+
+  // stat grid dots
+  document.querySelectorAll('.stat-box-v').forEach(el=>el.style.color=col);
+}
+
+/* ════════════════════════════════════════════════
+   LOAD CHARACTER FROM SUPABASE
+════════════════════════════════════════════════ */
+async function loadCharacter(userId){
+  const { data, error } = await sb
+    .from('characters')
+    .select(`
+      id, name, rank, level, exp, gold,
+      stamina_current, stamina_max,
+      strength, agility, intelligence, defense,
+      country_code, face_preset_id, hair_preset_id, outfit_preset_id,
+      classes(name, color_hex),
+      countries(name_en, name_th)
+    `)
+    .eq('user_id', userId)
+    .single();
+
+  if(error || !data) return null;
+
+  // ดึง image URL จาก image_cache ถ้ามี
+  let imageUrl = null;
+  const cacheKey = `char_${data.id}_standing_neutral`;
+  const { data: cache } = await sb.from('image_cache').select('image_url').eq('cache_key', cacheKey).maybeSingle();
+  if(cache?.image_url) imageUrl = cache.image_url;
+
+  return {
+    id:             data.id,
+    name:           data.name,
+    className:      data.classes?.name || 'Warrior',
+    classColor:     data.classes?.color_hex || '#00ccff',
+    countryCode:    data.country_code,
+    countryName:    data.countries?.name_en || '—',
+    rank:           data.rank || 'E',
+    level:          data.level || 1,
+    exp:            data.exp   || 0,
+    gold:           data.gold  || 0,
+    staminaCurrent: data.stamina_current ?? 100,
+    staminaMax:     data.stamina_max     ?? 100,
+    stats: {
+      STR: data.strength    || 10,
+      AGI: data.agility     || 10,
+      INT: data.intelligence|| 10,
+      DEF: data.defense     || 10,
+    },
+    imageUrl,
+    cityName: null,
+  };
+}
+
+/* ════════════════════════════════════════════════
+   LOAD NOTIFICATIONS
+════════════════════════════════════════════════ */
+async function loadNotifications(userId){
+  const { data } = await sb
+    .from('notifications')
+    .select('id, type, content, created_at, is_read')
+    .or(`recipient_id.eq.${userId},recipient_id.is.null`)
+    .order('created_at', { ascending: false })
+    .limit(30);
+
+  if(!data?.length) return;
+
+  const unread = data.filter(n => !n.is_read);
+  if(unread.length > 0) document.getElementById('notifBadge').classList.add('on');
+
+  const body = document.getElementById('notifBody');
+  body.innerHTML = '';
+  data.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'notif-item';
+    const timeAgo = timeAgoTh(n.created_at);
+    div.innerHTML = `
+      <div class="notif-type">[ ${(n.type||'system').toUpperCase()} ]</div>
+      <div class="notif-text">${n.content || ''}</div>
+      <div class="notif-time">${timeAgo}</div>`;
+    body.appendChild(div);
+  });
+
+  // mark as read
+  if(unread.length > 0){
+    await sb.from('notifications').update({ is_read: true })
+      .in('id', unread.map(n=>n.id));
+  }
+}
+
+function timeAgoTh(dateStr){
+  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+  if(diff < 60) return 'เมื่อกี้';
+  if(diff < 3600) return Math.floor(diff/60) + ' นาทีที่แล้ว';
+  if(diff < 86400) return Math.floor(diff/3600) + ' ชั่วโมงที่แล้ว';
+  return Math.floor(diff/86400) + ' วันที่แล้ว';
+}
+
+/* ════════════════════════════════════════════════
+   LOAD ONLINE PLAYERS (same country)
+════════════════════════════════════════════════ */
+async function loadOnlinePlayers(){
+  if(!charData) return;
+  const list = document.getElementById('onlineList');
+
+  const { data } = await sb
+    .from('characters')
+    .select('id, name, rank, classes(name, color_hex)')
+    .eq('country_code', charData.countryCode)
+    .neq('id', charData.id)
+    .limit(15);
+
+  if(!data?.length){
+    list.innerHTML = '<div class="online-empty">ไม่มีผู้เล่นในพื้นที่เดียวกัน</div>';
+    document.getElementById('onlineCount').textContent = '0 คนออนไลน์ในพื้นที่';
+    document.getElementById('locPlayers').textContent = '0 คน';
+    return;
+  }
+
+  document.getElementById('onlineCount').textContent = data.length + ' คนออนไลน์ในพื้นที่';
+  document.getElementById('locPlayers').textContent = data.length + ' คน';
+  list.innerHTML = '';
+  data.forEach(p => {
+    const col = p.classes?.color_hex || '#00ccff';
+    const rank = p.rank || 'E';
+    const div = document.createElement('div');
+    div.className = 'online-item';
+    div.innerHTML = `
+      <div class="oi-dot online"></div>
+      <div class="oi-name" style="color:${col}">${p.name}</div>
+      <div class="oi-class">${p.classes?.name || '—'}</div>
+      <div class="oi-rank rank-${rank.toLowerCase()}">${rank}</div>`;
+    list.appendChild(div);
+  });
+}
+
+/* ════════════════════════════════════════════════
+   LOAD GATES (nearby)
+════════════════════════════════════════════════ */
+async function loadGates(){
+  const list = document.getElementById('gateList');
+
+  const { data } = await sb
+    .from('gates')
+    .select('id, name, rank_required, stamina_cost, exp_reward, gold_reward, is_open')
+    .eq('is_open', true)
+    .order('rank_required')
+    .limit(10);
+
+  if(!data?.length){
+    list.innerHTML = '<div class="online-empty">ไม่พบ Gate ในพื้นที่</div>';
+    return;
+  }
+
+  const RANK_COLOR = {E:'#aaa',D:'#88aacc',C:'#44bbff',B:'#44ff88',A:'#ffaa00',S:'#ff4455',National:'#ff003c',Monarch:'#cc00ff'};
+  const charRankIdx = RANK_ORDER.indexOf(charData?.rank || 'E');
+  list.innerHTML = '';
+  data.forEach(g => {
+    const reqIdx = RANK_ORDER.indexOf(g.rank_required || 'E');
+    const canEnter = charRankIdx >= reqIdx;
+    const rcol = RANK_COLOR[g.rank_required] || '#aaa';
+    const div = document.createElement('div');
+    div.className = 'gate-item' + (canEnter ? '' : ' locked-rank');
+    div.innerHTML = `
+      <div class="gi-left">
+        <div class="gi-rank" style="color:${rcol};border-color:${rcol}33">${g.rank_required || 'E'}-RANK</div>
+        <div class="gi-name">${g.name}</div>
+        <div class="gi-cost">Stamina cost: ${g.stamina_cost || 10}</div>
+      </div>
+      <div class="gi-right">
+        <div class="gi-reward">+${g.exp_reward || 100} EXP  +${g.gold_reward || 50} G</div>
+        <div class="gi-enter">${canEnter ? 'ENTER' : 'LOCKED'}</div>
+      </div>`;
+    if(canEnter) div.onclick = () => enterGate(g.id, g.name, g.stamina_cost);
+    list.appendChild(div);
+  });
+}
+
+/* ════════════════════════════════════════════════
+   LOAD ACTIVE SERVER EVENT
+════════════════════════════════════════════════ */
+async function loadServerEvent(){
+  const { data } = await sb
+    .from('server_events')
+    .select('title, description')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if(data){
+    document.getElementById('eventBanner').classList.add('on');
+    document.getElementById('eventTitle').textContent = data.title;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   ENTER GATE
+════════════════════════════════════════════════ */
+async function enterGate(gateId, gateName, staminaCost){
+  if(!session) return;
+  if((charData.staminaCurrent || 0) < (staminaCost || 10)){
+    showToast('Stamina ไม่พอ!'); return;
+  }
+  flash(()=>{ window.location.href = `gate.html?id=${gateId}&name=${encodeURIComponent(gateName)}`; });
+}
+
+/* ════════════════════════════════════════════════
+   WORLD CHAT
+════════════════════════════════════════════════ */
+function openWChat(){ document.getElementById('wchatModal').classList.add('on'); setTimeout(()=>document.getElementById('wchatInput').focus(), 200); }
+function closeWChat(e){ if(!e || e.target === document.getElementById('wchatModal')) document.getElementById('wchatModal').classList.remove('on'); }
+
+async function sendWorldChat(){
+  const inp = document.getElementById('wchatInput');
+  const msg = inp.value.trim();
+  if(!msg || !session) return;
+  inp.value = '';
+  document.getElementById('wchatModal').classList.remove('on');
+
+  const { data, error } = await sb.rpc('send_world_chat', {
+    p_sender_id:      session.user.id,
+    p_sender_char_id: charData.id,
+    p_message:        msg
+  });
+
+  if(error || !data?.success){
+    showToast(data?.error || error?.message || 'ส่งไม่ได้ ต้องการ Rank B+');
+  } else {
+    showToast('ส่ง World Chat แล้ว');
+  }
+}
+
+/* ════════════════════════════════════════════════
+   NOTIFICATIONS
+════════════════════════════════════════════════ */
+function openNotif(){
+  document.getElementById('notifOverlay').classList.add('on');
+  document.getElementById('notifBadge').classList.remove('on');
+}
+function closeNotif(e){
+  if(!e || e.target === document.getElementById('notifOverlay')){
+    document.getElementById('notifOverlay').classList.remove('on');
+  }
+}
+
+/* ════════════════════════════════════════════════
+   TAB SWITCH
+════════════════════════════════════════════════ */
+let tabLoaded = { players: false, gates: false };
+function switchTab(tab){
+  document.querySelectorAll('#nearbyTabs .tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if(tab === 'players' && !tabLoaded.players){ loadOnlinePlayers(); tabLoaded.players=true; }
+  if(tab === 'gates'   && !tabLoaded.gates  ){ loadGates();         tabLoaded.gates=true; }
+}
+
+/* ════════════════════════════════════════════════
+   REALTIME — notifications live
+════════════════════════════════════════════════ */
+function subscribeRealtime(userId){
+  realtimeSub = sb.channel('hub-notif')
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'notifications',
+      filter: `recipient_id=eq.${userId}`
+    }, payload => {
+      document.getElementById('notifBadge').classList.add('on');
+      showToast('[ แจ้งเตือน ] ' + (payload.new?.content || '').slice(0,40));
+    })
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'notifications',
+      filter: `recipient_id=is.null`
+    }, payload => {
+      if(payload.new?.type === 'world_chat' || payload.new?.type === 'ceo_broadcast'){
+        showToast('[WORLD] ' + (payload.new?.content || '').slice(0,50));
+      }
+    })
+    .subscribe();
+}
+
+/* ════════════════════════════════════════════════
+   KEYBOARD
+════════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    document.getElementById('wchatModal').classList.remove('on');
+    document.getElementById('notifOverlay').classList.remove('on');
+  }
+  if(e.key === 'Enter' && document.getElementById('wchatModal').classList.contains('on')){
+    sendWorldChat();
+  }
+});
+
+/* ════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════ */
+(async function init(){
+  // Check session
+  const { data: { session: s } } = await sb.auth.getSession();
+  if(!s){ window.location.href = 'index.html'; return; }
+  session = s;
+
+  // Load character
+  const c = await loadCharacter(s.user.id);
+  if(!c){ window.location.href = 'create-character.html'; return; }
+
+  // Apply to UI
+  applyChar(c);
+
+  // Load additional data
+  await Promise.all([
+    loadNotifications(s.user.id),
+    loadServerEvent(),
+  ]);
+
+  // Load first tab
+  await loadOnlinePlayers();
+  tabLoaded.players = true;
+
+  // Start realtime
+  subscribeRealtime(s.user.id);
+
+  // Hide loading
+  const ls = document.getElementById('loadingScreen');
+  ls.classList.add('hidden');
+  setTimeout(()=>{ ls.style.display='none'; }, 500);
+
+  // Periodic stamina refresh every 5min
+  setInterval(async () => {
+    const fresh = await loadCharacter(s.user.id);
+    if(fresh){
+      const sta = fresh.staminaCurrent ?? 100;
+      const staMax = fresh.staminaMax ?? 100;
+      document.getElementById('staVal').textContent = sta + ' / ' + staMax;
+      document.getElementById('staBar').style.width = (sta/staMax*100).toFixed(1)+'%';
+      charData.staminaCurrent = sta;
+    }
+  }, 300000);
+})();
+</script>
+</body>
+</html>
