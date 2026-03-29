@@ -665,61 +665,95 @@ function updateGenBtn(){
 }
 
 // ================================================================
-//  AI IMAGE GENERATION — via Supabase Edge Function
-//  key เก็บใน Supabase secrets ไม่มี key ใน frontend เลย
+//  AI IMAGE GENERATION — Gemini Imagen via Supabase Edge Function
+//  API Key เก็บใน Supabase Secrets ปลอดภัย 100%
+//  ฟรี 500 รูป/วัน ไม่ต้องบัตรเครดิต
 // ================================================================
 const NARRATOR = [
   '[ System: Scanning hunter biometric data... ]',
+  '[ System: Awakening signature processing... ]',
   '[ System: Constructing appearance matrix... ]',
   '[ System: Rendering combat profile... ]',
   '[ System: Applying class parameters... ]',
-  '[ System: Awakening signature detected... ]',
+  '[ System: Shadow energy synchronizing... ]',
   '[ System: Final visualization in progress... ]'
 ];
 let narratorIdx=0, narratorTimer=null, progressTimer=null;
 
+// ─── Cache Key ────────────────────────────────────────────────
+function buildCacheKey(){
+  const parts=[S.clsId,S.faceId,S.hairId,S.gender,S.height].join('_');
+  let h=0;
+  for(let i=0;i<parts.length;i++){ h=((h<<5)-h)+parts.charCodeAt(i); h|=0; }
+  return 'char_'+Math.abs(h).toString(16);
+}
+
+// ─── Prompt Builder ───────────────────────────────────────────
 function buildPrompt(){
   const gTag=S.gender==='male'?'manhwa male character':'manhwa female character';
   const cls=DB.cls.find(c=>c.id===S.clsId);
   const clsName=cls?cls.name.toLowerCase():'hunter';
   return [
-    'webtoon art style, manhwa illustration, clean line art, high quality',
-    gTag, S.heightPrompt, S.facePrompt, S.hairPrompt,
-    `wearing ${clsName} starter outfit`,
-    'full body standing pose, holding weapon, white plain background',
-    'detailed shading, dramatic lighting, solo leveling style'
+    'webtoon manhwa art style, clean line art, high quality digital illustration',
+    'solo leveling style, dynamic anime coloring, vibrant colors',
+    gTag,
+    S.heightPrompt||'average height athletic build',
+    S.facePrompt||'',
+    S.hairPrompt||'',
+    `wearing ${clsName} class hunter starter outfit`,
+    'full body standing pose, holding weapon ready, centered',
+    'plain white background, detailed cel shading, dramatic rim lighting'
   ].filter(Boolean).join(', ');
 }
 
 function buildNegative(){
-  return 'realistic photo, 3d render, blurry, deformed, ugly, extra limbs, bad anatomy, watermark, duplicate, nsfw, low quality';
+  return 'realistic photo, 3d render, blurry, deformed, ugly, extra limbs, bad anatomy, watermark, duplicate, nsfw, low quality, chibi, sketch, grayscale';
 }
 
+// ─── UI Helpers ───────────────────────────────────────────────
 function startNarratorLoop(){
   const el=document.getElementById('narratorTxt');
+  if(!el) return;
   narratorIdx=0; el.textContent=NARRATOR[0];
   clearInterval(narratorTimer);
   narratorTimer=setInterval(()=>{
     narratorIdx=(narratorIdx+1)%NARRATOR.length;
     el.textContent=NARRATOR[narratorIdx];
-  },1800);
+  },1600);
 }
 
 function startProgress(){
-  const bar=document.getElementById('aiBar'); bar.style.width='0%';
-  let p=0; clearInterval(progressTimer);
+  const bar=document.getElementById('aiBar');
+  if(!bar) return;
+  bar.style.width='0%'; let p=0; clearInterval(progressTimer);
   progressTimer=setInterval(()=>{
-    p+=p<60?1.5:p<85?.5:.15;
-    if(p>=99){ clearInterval(progressTimer); p=99; }
+    p+=p<40?2:p<70?.8:p<90?.3:.05;
+    if(p>=98){ clearInterval(progressTimer); p=98; }
     bar.style.width=p+'%';
   },200);
 }
 
 function finishProgress(){
   clearInterval(progressTimer);
-  document.getElementById('aiBar').style.width='100%';
+  const bar=document.getElementById('aiBar');
+  if(bar) bar.style.width='100%';
 }
 
+function setAiStatus(msg){
+  const el=document.getElementById('aiStatus');
+  if(el) el.textContent=msg;
+}
+
+// ─── Cache Check (Supabase Storage) ──────────────────────────
+async function checkCache(cacheKey){
+  try{
+    const url=`${SUPABASE_URL}/storage/v1/object/public/webtoon-cache/${cacheKey}.png`;
+    const r=await fetch(url,{method:'HEAD'});
+    return r.ok ? url : null;
+  }catch{ return null; }
+}
+
+// ─── Main Generate ────────────────────────────────────────────
 function openAndGenerate(){
   document.getElementById('previewModal').classList.add('on');
   generatePreview();
@@ -728,55 +762,63 @@ function openAndGenerate(){
 async function generatePreview(){
   if(isGenerating) return;
   if(!S.faceId||!S.hairId||!S.clsId){
-    document.getElementById('aiStatus').textContent='กรุณาเลือกอาชีพ หน้า และผมก่อน';
+    setAiStatus('กรุณาเลือกอาชีพ หน้า และผมก่อน');
     return;
   }
 
   isGenerating=true;
   document.getElementById('regenBtn').disabled=true;
 
-  const imgEl  = document.getElementById('previewImg');
-  const loadEl = document.getElementById('aiLoading');
-  imgEl.classList.remove('loaded'); imgEl.style.display='none';
-  loadEl.classList.remove('hidden');
-  document.getElementById('aiStatus').textContent='กำลังสร้างรูปตัวละคร...';
-  startNarratorLoop(); startProgress();
+  const imgEl=document.getElementById('previewImg');
+  const loadEl=document.getElementById('aiLoading');
+  if(imgEl){ imgEl.classList.remove('loaded'); imgEl.style.display='none'; }
+  if(loadEl) loadEl.classList.remove('hidden');
+  setAiStatus('กำลังสร้างรูปตัวละคร...');
+  startNarratorLoop();
+  startProgress();
 
   try{
-    // ── Pollinations.ai — ฟรี 100% ไม่ต้อง token ────────────
-    const seed = Math.floor(Math.random()*999999);
-    const url  = 'https://image.pollinations.ai/prompt/'
-               + encodeURIComponent(buildPrompt())
-               + '?width=512&height=768'
-               + '&model=flux'
-               + '&seed=' + seed
-               + '&nologo=true';
+    const cacheKey=buildCacheKey();
 
-    await new Promise((resolve, reject)=>{
-      const timeout = setTimeout(()=> reject(new Error('หมดเวลา กด Regenerate ใหม่')), 90000);
-      imgEl.addEventListener('load', ()=>{
-        clearTimeout(timeout);
-        imgEl.classList.add('loaded');
-        S.previewImageUrl = url;
-        resolve();
-      }, {once:true});
-      imgEl.addEventListener('error', ()=>{
-        clearTimeout(timeout);
-        reject(new Error('โหลดรูปไม่ได้ กด Regenerate'));
-      }, {once:true});
-      imgEl.src = url;
-      imgEl.style.display = 'block';
+    // ── Step 1: เช็ค Cache ก่อน ───────────────────────────────
+    setAiStatus('[ System: Checking image cache... ]');
+    const cachedUrl=await checkCache(cacheKey);
+    if(cachedUrl){
+      finishProgress(); clearInterval(narratorTimer);
+      if(loadEl) loadEl.classList.add('hidden');
+      if(imgEl){ imgEl.src=cachedUrl; imgEl.style.display='block'; imgEl.onload=()=>imgEl.classList.add('loaded'); }
+      S.previewImageUrl=cachedUrl;
+      setAiStatus('[ OK ] โหลดรูปจาก Cache!');
+      return;
+    }
+
+    // ── Step 2: เรียก Gemini Edge Function ────────────────────
+    setAiStatus('[ System: Gemini Imagen generating... ]');
+    const res=await sb.functions.invoke('generate-character-image',{
+      body:{ prompt:buildPrompt(), negative:buildNegative(), cacheKey }
     });
 
+    if(res.error) throw new Error(res.error.message||'Edge function error');
+    const data=res.data;
+    if(!data?.success) throw new Error(data?.error||'ไม่สามารถสร้างรูปได้');
+
+    // ── Step 3: แสดงรูป ───────────────────────────────────────
     finishProgress(); clearInterval(narratorTimer);
-    loadEl.classList.add('hidden');
-    document.getElementById('aiStatus').textContent='[ OK ] สร้างรูปสำเร็จ!';
+    if(loadEl) loadEl.classList.add('hidden');
+
+    const src = data.imageUrl || (data.base64 ? `data:${data.mimeType||'image/png'};base64,${data.base64}` : null);
+    if(!src) throw new Error('ไม่ได้รับรูปภาพ');
+
+    if(imgEl){ imgEl.src=src; imgEl.style.display='block'; imgEl.onload=()=>imgEl.classList.add('loaded'); }
+    S.previewImageUrl=src;
+    setAiStatus('[ OK ] สร้างรูปสำเร็จ! ✦');
 
   }catch(e){
-    console.error('Generate error:', e);
+    console.error('Generate error:',e);
     finishProgress(); clearInterval(narratorTimer);
-    loadEl.classList.add('hidden');
-    document.getElementById('aiStatus').textContent='[ ERROR ] '+e.message;
+    if(document.getElementById('aiLoading')) document.getElementById('aiLoading').classList.add('hidden');
+    const msg=e.message||'เกิดข้อผิดพลาด';
+    setAiStatus(msg.includes('quota')?'[ NOTICE ] quota วันนี้เต็ม ลองพรุ่งนี้':'[ ERROR ] '+msg+' — กด Generate ใหม่');
   }finally{
     isGenerating=false;
     document.getElementById('regenBtn').disabled=false;
@@ -840,11 +882,31 @@ function setSt(t,m){
   el.innerHTML=t==='ld'?`<span class="spin"></span>${m}`:(t==='err'?'[ ERROR ] ':'[ OK ] ')+m;
 }
 function doAw(){
+  // ── บันทึกข้อมูลสำหรับส่งไปหน้า awakening.html ───────────
+  const awData = {
+    name:      S.name,
+    className: S.clsName,
+    classCol:  S.clsCol,
+    country:   S.ctName || '',
+    countryTh: S.ctTh   || '',
+    countryCode: S.country || '',
+    stats:     S.clsSt,
+    gender:    S.gender,
+    height:    S.height,
+    imageUrl:  S.previewImageUrl || null
+  };
+  sessionStorage.setItem('awData', JSON.stringify(awData));
+
+  // ── แสดง overlay brief แล้วไป awakening.html ─────────────
   document.getElementById('awName').textContent=S.name;
-  const r=document.getElementById('awRank'); r.textContent='E — RANK'; r.style.color=S.clsCol;
-  const b=document.getElementById('awBar'); b.style.animation='none'; b.offsetHeight; b.style.animation='bfill 2s cubic-bezier(.16,1,.3,1) forwards';
+  const r=document.getElementById('awRank');
+  r.textContent='E — RANK'; r.style.color=S.clsCol;
+  const b=document.getElementById('awBar');
+  b.style.animation='none'; b.offsetHeight;
+  b.style.animation='bfill 1.8s cubic-bezier(.16,1,.3,1) forwards';
   document.getElementById('awOv').classList.add('on');
-  setTimeout(()=>{ window.location.href='hub.html'; },2400);
+  // รอ 2 วิแล้วข้ามไปหน้า awakening
+  setTimeout(()=>{ window.location.href='awakening.html'; }, 2000);
 }
 
 async function createChar(){
@@ -863,8 +925,12 @@ async function createChar(){
     });
     if(error) throw error;
     if(!data?.success) throw new Error(data?.error||'ไม่สามารถสร้างตัวละครได้');
+    // บันทึก gender/height เพิ่มเติม
     await sb.from('characters').update({
-      equipment: JSON.stringify({weapon:null,armor:null,accessory:null,gender:S.gender,height:S.height,height_cm:S.heightCm})
+      equipment: JSON.stringify({
+        weapon:null, armor:null, accessory:null,
+        gender:S.gender, height:S.height, height_cm:S.heightCm
+      })
     }).eq('user_id',session.user.id);
     doAw();
   }catch(e){ setSt('err',e.message||'เกิดข้อผิดพลาด'); btn.disabled=false; }
