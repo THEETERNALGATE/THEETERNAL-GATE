@@ -771,7 +771,7 @@ async function generatePreview(){
 
   const imgEl=document.getElementById('previewImg');
   const loadEl=document.getElementById('aiLoading');
-  if(imgEl){ imgEl.classList.remove('loaded'); imgEl.style.display='none'; }
+  if(imgEl){ imgEl.classList.remove('loaded'); imgEl.src=''; imgEl.style.display='none'; }
   if(loadEl) loadEl.classList.remove('hidden');
   setAiStatus('กำลังสร้างรูปตัวละคร...');
   startNarratorLoop();
@@ -780,33 +780,44 @@ async function generatePreview(){
   try{
     const seed   = Math.floor(Math.random() * 999999);
     const prompt = encodeURIComponent(buildPrompt());
-    const url    = 'https://image.pollinations.ai/prompt/' + prompt
-                 + '?width=512&height=768'
-                 + '&model=flux'
-                 + '&seed=' + seed
-                 + '&nologo=true'
-                 + '&enhance=true';
 
-    setAiStatus('[ System: กำลัง generate... รอสักครู่ ]');
+    // ── ใช้ img.src ตรงๆ — <img> tag ไม่โดน CORS block ──────
+    // ไม่ใส่ crossOrigin attribute เด็ดขาด
+    const url = 'https://image.pollinations.ai/prompt/' + prompt
+              + '?width=512&height=768'
+              + '&model=flux'
+              + '&seed=' + seed
+              + '&nologo=true'
+              + '&enhance=true';
 
-    // ── fetch เป็น blob แล้วแปลงเป็น object URL ──────────────
-    // วิธีนี้แก้ปัญหา cross-origin image display บน GitHub Pages
-    const res = await fetch(url);
-    if(!res.ok) throw new Error('Pollinations ตอบ ' + res.status + ' กด Regenerate');
+    setAiStatus('[ System: กำลัง generate... รอ 15-30 วิ ]');
 
-    const blob    = await res.blob();
-    if(blob.size < 500) throw new Error('รูปไม่สมบูรณ์ กด Regenerate');
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('หมดเวลา — กด Regenerate ใหม่'));
+      }, 120000); // 2 นาที
 
-    const objUrl  = URL.createObjectURL(blob);
+      // สำคัญ: ไม่ใส่ crossOrigin
+      imgEl.removeAttribute('crossorigin');
+
+      imgEl.onload = () => {
+        clearTimeout(timeout);
+        imgEl.style.display = 'block';
+        imgEl.classList.add('loaded');
+        S.previewImageUrl = url;
+        resolve();
+      };
+
+      imgEl.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error('โหลดรูปไม่ได้ — กด Regenerate'));
+      };
+
+      imgEl.src = url;
+    });
 
     finishProgress(); clearInterval(narratorTimer);
     if(loadEl) loadEl.classList.add('hidden');
-
-    imgEl.onload = () => imgEl.classList.add('loaded');
-    imgEl.src    = objUrl;
-    imgEl.style.display = 'block';
-
-    S.previewImageUrl = objUrl;
     setAiStatus('[ OK ] สร้างรูปสำเร็จ! ✦');
 
   }catch(e){
@@ -818,6 +829,7 @@ async function generatePreview(){
     isGenerating = false;
     document.getElementById('regenBtn').disabled = false;
   }
+
 
 
 }
