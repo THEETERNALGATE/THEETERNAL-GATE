@@ -778,51 +778,52 @@ async function generatePreview(){
   startProgress();
 
   try{
-    const cacheKey=buildCacheKey();
+    // ── Pollinations.ai — ฟรี 100% ไม่ต้อง API key ────────────
+    // docs: https://image.pollinations.ai
+    const seed  = Math.floor(Math.random() * 999999);
+    const prompt = encodeURIComponent(buildPrompt());
+    const url = `https://image.pollinations.ai/prompt/${prompt}`
+              + `?width=512&height=768`
+              + `&model=flux`
+              + `&seed=${seed}`
+              + `&nologo=true`
+              + `&enhance=true`;
 
-    // ── Step 1: เช็ค Cache ก่อน ───────────────────────────────
-    setAiStatus('[ System: Checking image cache... ]');
-    const cachedUrl=await checkCache(cacheKey);
-    if(cachedUrl){
-      finishProgress(); clearInterval(narratorTimer);
-      if(loadEl) loadEl.classList.add('hidden');
-      if(imgEl){ imgEl.src=cachedUrl; imgEl.style.display='block'; imgEl.onload=()=>imgEl.classList.add('loaded'); }
-      S.previewImageUrl=cachedUrl;
-      setAiStatus('[ OK ] โหลดรูปจาก Cache!');
-      return;
-    }
+    setAiStatus('[ System: Pollinations.ai generating... ]');
 
-    // ── Step 2: เรียก Gemini Edge Function ────────────────────
-    setAiStatus('[ System: Gemini Imagen generating... ]');
-    const res=await sb.functions.invoke('generate-character-image',{
-      body:{ prompt:buildPrompt(), negative:buildNegative(), cacheKey }
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('หมดเวลา 90 วิ — กด Regenerate')), 90000);
+
+      imgEl.addEventListener('load', () => {
+        clearTimeout(timeout);
+        imgEl.classList.add('loaded');
+        S.previewImageUrl = url;
+        resolve();
+      }, { once: true });
+
+      imgEl.addEventListener('error', () => {
+        clearTimeout(timeout);
+        reject(new Error('โหลดรูปไม่ได้ กด Regenerate'));
+      }, { once: true });
+
+      imgEl.src = url;
+      imgEl.style.display = 'block';
     });
 
-    if(res.error) throw new Error(res.error.message||'Edge function error');
-    const data=res.data;
-    if(!data?.success) throw new Error(data?.error||'ไม่สามารถสร้างรูปได้');
-
-    // ── Step 3: แสดงรูป ───────────────────────────────────────
     finishProgress(); clearInterval(narratorTimer);
     if(loadEl) loadEl.classList.add('hidden');
-
-    const src = data.imageUrl || (data.base64 ? `data:${data.mimeType||'image/png'};base64,${data.base64}` : null);
-    if(!src) throw new Error('ไม่ได้รับรูปภาพ');
-
-    if(imgEl){ imgEl.src=src; imgEl.style.display='block'; imgEl.onload=()=>imgEl.classList.add('loaded'); }
-    S.previewImageUrl=src;
     setAiStatus('[ OK ] สร้างรูปสำเร็จ! ✦');
 
   }catch(e){
-    console.error('Generate error:',e);
+    console.error('Generate error:', e);
     finishProgress(); clearInterval(narratorTimer);
-    if(document.getElementById('aiLoading')) document.getElementById('aiLoading').classList.add('hidden');
-    const msg=e.message||'เกิดข้อผิดพลาด';
-    setAiStatus(msg.includes('quota')?'[ NOTICE ] quota วันนี้เต็ม ลองพรุ่งนี้':'[ ERROR ] '+msg+' — กด Generate ใหม่');
+    if(loadEl) loadEl.classList.add('hidden');
+    setAiStatus('[ ERROR ] ' + (e.message||'เกิดข้อผิดพลาด') + ' — กด Regenerate');
   }finally{
-    isGenerating=false;
-    document.getElementById('regenBtn').disabled=false;
+    isGenerating = false;
+    document.getElementById('regenBtn').disabled = false;
   }
+
 }
 
 function closeModal(){
